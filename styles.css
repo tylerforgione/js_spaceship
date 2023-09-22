@@ -1,0 +1,79 @@
+/* Reset some default browser styles */
+html,
+body,
+div {
+  margin: 0;
+  padding: 0;
+}
+
+/* Set the background color of the viewport to white */
+body {
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Style the game container to center the canvas and hide overflow */
+.game-container {
+  position: relative;
+  width: 800px; /* Adjust the width and height as needed */
+  height: 600px;
+  border: 2px solid #000; /* Add a border for demonstration */
+  overflow: hidden; /* Hide anything outside the container */
+}
+
+/* Style the game canvas */
+#game-canvas {
+  background-image: url("_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/nebula_blue.png"); /* Replace with your image path */
+  background-size: cover;
+  width: 100%; /* Adjust the width and height as needed */
+  height: 100%;
+  border: 2px solid #000; /* Add a border for demonstration */
+}
+
+/* Style the debris image */
+.debris1 {
+  position: absolute;
+  background-image: url("_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/debris2_blue.png"); /* Replace with your debris image path */
+  background-size: contain; /* Adjust as needed */
+  width: 100%; /* Adjust the width and height as needed */
+  height: 100%;
+  animation: moveDebris1 15s linear infinite; /* Adjust animation duration as needed */
+}
+
+.debris2 {
+  position: absolute;
+  background-image: url("_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/debris2_blue.png"); /* Replace with your second debris image path */
+  background-size: contain; /* Adjust as needed */
+  width: 100%; /* Adjust the width and height as needed */
+  height: 100%;
+  animation: moveDebris2 15s linear infinite; /* Adjust animation duration as needed */
+}
+
+/* .spaceshipSprite {
+  height: 60px;
+  width: 60px;
+} */
+
+/* Define the debris animation */
+@keyframes moveDebris1 {
+  0% {
+    left: 0; /* Initial horizontal position, off the left edge of the viewport */
+  }
+  100% {
+    left: 100%; /* Final horizontal position, off the right edge of the viewport */
+  }
+}
+
+/* Define the second debris animation */
+@keyframes moveDebris2 {
+  0% {
+    left: -100%; /* Initial horizontal position, off the left edge of the canvas */
+  }
+  100% {
+    left: 0; /* Final horizontal position, at the left edge of the canvas */
+  }
+}
