@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Get the canvas and its context
-  const canvas = document.getElementById("game-canvas");
+  const canvas = this.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
 
   //SPACESHIP CODE
@@ -80,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //ASTEROID CODE
   const asteroidSprite = new Image();
+  let score = 0;
 
   // Function to draw asteroids on the canvas
   function drawAsteroids() {
@@ -273,58 +274,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //GENERAL CODE
   // Arrow key event listeners for rotation
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") {
-      // Start rotating left when the left arrow key is pressed
-      rotatingLeft = true;
-    } else if (event.key === "ArrowRight") {
-      // Start rotating right when the right arrow key is pressed
-      rotatingRight = true;
-    }
-  });
+  function handleRotation() {
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") {
+        // Start rotating left when the left arrow key is pressed
+        rotatingLeft = true;
+      } else if (event.key === "ArrowRight") {
+        // Start rotating right when the right arrow key is pressed
+        rotatingRight = true;
+      }
+    });
 
-  // Arrow key event listeners for stopping rotation
-  document.addEventListener("keyup", (event) => {
-    if (event.key === "ArrowLeft") {
-      // Stop rotating left when the left arrow key is released
-      rotatingLeft = false;
-    } else if (event.key === "ArrowRight") {
-      // Stop rotating right when the right arrow key is released
-      rotatingRight = false;
-    }
-  });
+    // Arrow key event listeners for stopping rotation
+    document.addEventListener("keyup", (event) => {
+      if (event.key === "ArrowLeft") {
+        // Stop rotating left when the left arrow key is released
+        rotatingLeft = false;
+      } else if (event.key === "ArrowRight") {
+        // Stop rotating right when the right arrow key is released
+        rotatingRight = false;
+      }
+    });
+  }
 
-  // Event listener for the up arrow key (keydown to start accelerating)
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowUp") {
-      // Start accelerating when the up arrow key is pressed
-      accelerating = true;
-    }
-  });
+  function handleAcceleration() {
+    // Event listener for the up arrow key (keydown to start accelerating)
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowUp") {
+        // Start accelerating when the up arrow key is pressed
+        accelerating = true;
+      }
+    });
 
-  // Event listener for the up arrow key (keyup to stop accelerating)
-  document.addEventListener("keyup", (event) => {
-    if (event.key === "ArrowUp") {
-      // Stop accelerating when the up arrow key is released
-      accelerating = false;
-    }
-  });
+    // Event listener for the up arrow key (keyup to stop accelerating)
+    document.addEventListener("keyup", (event) => {
+      if (event.key === "ArrowUp") {
+        // Stop accelerating when the up arrow key is released
+        accelerating = false;
+      }
+    });
+  }
 
-  // Event listener for firing missiles when the spacebar key is pressed
+  function handleMissiles() {
+    // Event listener for firing missiles when the spacebar key is pressed
+    document.addEventListener("keydown", (event) => {
+      if (event.key === " " && !isFiringMissile) {
+        createMissile(); // Create a new missile
+        isFiringMissile = true; // Set the flag to prevent firing more missiles
+        logSpacebarPress();
+      }
+    });
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === " " && !isFiringMissile) {
-      createMissile(); // Create a new missile
-      isFiringMissile = true; // Set the flag to prevent firing more missiles
-    }
-  });
-
-  // Event listener to reset the missile firing flag when the spacebar key is released
-  document.addEventListener("keyup", (event) => {
-    if (event.key === " ") {
-      isFiringMissile = false;
-    }
-  });
+    // Event listener to reset the missile firing flag when the spacebar key is released
+    document.addEventListener("keyup", (event) => {
+      if (event.key === " ") {
+        isFiringMissile = false;
+      }
+    });
+  }
 
   // Function to check for collisions between the spaceship and asteroids
   function checkCollisions() {
@@ -342,6 +349,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Remove the asteroid from the array
         asteroids.splice(i, 1);
         asteroidCount--;
+        score -= 5;
       }
     }
   }
@@ -360,10 +368,11 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         // Check if the missile and asteroid have collided
-        if (distance < missileSprite.width / 2 + asteroidSprite.width / 2) {
+        if (distance < missileSprite.width / 3 + asteroidSprite.width / 3) {
           // Trigger an explosion at the collision point
           startExplosion(asteroid.x, asteroid.y);
           asteroidCount--;
+          score += 10;
 
           // Remove the missile and asteroid from their respective arrays
           missiles.splice(i, 1);
@@ -376,12 +385,241 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Game loop to continuously update and draw the spaceship
-  function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-    drawSpaceship(); // Draw the spaceship
+  function showScore() {
+    document.getElementById(
+      "score-tracker"
+    ).innerHTML = `<span>Score = ${score}</span>`;
+  }
+
+  function startTimer(timer, display) {
+    let intervalId = setInterval(function () {
+      let minutes = parseInt(timer / 60, 10);
+      let seconds = parseInt(timer % 60, 10);
+
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      display.textContent = `${minutes}:${seconds}`;
+
+      if (--timer < 0) {
+        clearInterval(intervalId); // Clear the interval when the timer reaches 0
+      }
+    }, 1000);
+  }
+
+  function setTimer(duration) {
+    return duration; // Simply return the initial duration
+  }
+
+  // Call this function to start the timer when your loop or event begins
+  function startTimerWhenLoopStarts() {
+    var fiveMinutes = 60 * 5 - 1;
+    var display = document.querySelector("#timer");
+    var initialTimerValue = setTimer(fiveMinutes);
+    startTimer(initialTimerValue, display);
+  }
+
+  //PRACTICE
+
+  //Define practice stages
+  const stages = [
+    {
+      name: "Welcome to the Experiment!",
+      instructions: "Press 'N' to continue",
+    },
+    {
+      name: "Rotate Right",
+      instructions: "Use the right arrow key to rotate the spaceship right",
+    },
+    {
+      name: "Rotate Left",
+      instructions: "Use the left arrow key to rotate the spaceship left",
+    },
+    {
+      name: "Acceleration",
+      instructions:
+        "Use the up arrow key to accelerate. Be careful, there are no brakes!",
+    },
+    {
+      name: "Shooting",
+      instructions: "Press spacebar to shoot asteroids",
+    },
+    {
+      name: "Free Practice",
+      instructions: "You can practice freely!",
+    },
+    {
+      name: "",
+      instructions: "",
+    },
+  ];
+
+  const keyImages = [
+    "_img/keyboard/keyboard_right.png",
+    "_img/keyboard/keyboard_left.png",
+    "_img/keyboard/keyboard_up.png",
+    "_img/keyboard/keyboard_space.png",
+  ];
+
+  // Initialize stage manager
+  let currentStageIndex = 0; // Start with the first stage
+  let wantPracticeChange = false;
+
+  // Function to handle advancing to the next stage
+  function advanceToNextStage() {
+    pStage++;
+    const currentStage = stages[pStage];
+    if (pStage < stages.length) {
+      // Display instructions for the next stage
+      document.getElementById("instructions").innerHTML = `
+        <h1>${currentStage.name}</h1>
+        <p>${currentStage.instructions}</p>
+      `;
+      // Update the displayed key image for the next stage
+      updateKeyImage(pStage);
+    } else {
+      currentStage.name.display = "none";
+      currentStage.instructions.display = "none";
+    }
+  }
+
+  function updateKeyImage(stageIndex) {
+    const keyImageElement = document.getElementById("keyImage");
+    if (
+      stageIndex == 1 ||
+      stageIndex == 2 ||
+      stageIndex == 3 ||
+      stageIndex == 4
+    ) {
+      // Update the image source based on the current practice stage
+      keyImageElement.src = keyImages[stageIndex - 1];
+      // You can also adjust the position or visibility of the image here
+      keyImageElement.style.height = "120px";
+      keyImageElement.style.width = "400px";
+      keyImageElement.style.visibility = "visible";
+    } else {
+      // Hide the image if there are no more practice stages
+      keyImageElement.style.visibility = "hidden";
+      keyImageElement.style.height = "0px";
+      keyImageElement.style.width = "0px";
+    }
+  }
+
+  // Event listener for the "N" key to advance to the next stage
+  function nEventListener() {
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "n" || event.key === "N") {
+        advanceToNextStage();
+        wantPracticeChange = true;
+      }
+    });
+  }
+
+  // Initial instructions for the first stage
+  function firstStageInstructions() {
+    document.getElementById("instructions").innerHTML = `
+    <h1>Practice Stage: ${stages[currentStageIndex].name}</h1>
+    <p>${stages[currentStageIndex].instructions}</p>
+  `;
+  }
+
+  function clearEventListeners() {
+    document.removeEventListener("keydown", handleRotation);
+    document.removeEventListener("keydown", handleAcceleration);
+    document.removeEventListener("keydown", handleMissiles);
+  }
+
+  let pStage = 0;
+
+  function stage0() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    firstStageInstructions();
+    drawSpaceship();
+    updateSpaceship();
+    if (pStage != 0) {
+      onStage0Finish();
+      return;
+    }
+    requestAnimationFrame(stage0);
+  }
+
+  function stage1() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSpaceship();
+    updateSpaceship();
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight") {
+        rotatingRight = true;
+      }
+    });
+    document.addEventListener("keyup", (event) => {
+      if (event.key === "ArrowRight") {
+        rotatingRight = false;
+      }
+    });
+    if (pStage != 1) {
+      onStage1Finish();
+      return;
+    }
+    requestAnimationFrame(stage1);
+  }
+
+  function stage2() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.removeEventListener("keydown", handleRotation);
+    drawSpaceship();
+    updateSpaceship();
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") {
+        rotatingLeft = true;
+      }
+    });
+    document.addEventListener("keyup", (event) => {
+      if (event.key === "ArrowLeft") {
+        rotatingLeft = false;
+      }
+    });
+    if (pStage != 2) {
+      onStage2Finish();
+      return;
+    }
+    requestAnimationFrame(stage2);
+  }
+
+  function stage3() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSpaceship();
+    handleAcceleration();
+    updateSpaceship();
+    if (pStage != 3) {
+      onStage3Finish();
+      return;
+    }
+    requestAnimationFrame(stage3);
+  }
+
+  function stage4() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSpaceship();
+    drawMissiles();
+    updateSpaceship();
+    updateMissiles();
+    handleMissiles();
+    if (pStage != 4) {
+      onStage4Finish();
+      return;
+    }
+    requestAnimationFrame(stage4);
+  }
+
+  function stage5() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSpaceship();
     drawAsteroids();
     drawMissiles();
+    handleRotation();
+    handleAcceleration();
+    handleMissiles();
     updateSpaceship();
     updateMissiles();
     if (explosion.isActive) {
@@ -390,9 +628,219 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     checkMissileHit();
     checkCollisions();
+    if (pStage != 5) {
+      onStage5Finish();
+      return;
+    }
+    requestAnimationFrame(stage5);
+  }
+
+  // Game loop to continuously update and draw the spaceship
+  function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    drawSpaceship(); // Draw the spaceship
+    drawAsteroids();
+    drawMissiles();
+    // showScore();
+    handleRotation();
+    handleAcceleration();
+    handleMissiles();
+    updateSpaceship();
+    updateMissiles();
+    if (explosion.isActive) {
+      updateExplosion();
+      drawExplosion();
+    }
+    checkMissileHit();
+    checkCollisions();
+    if (currentGameLoop != gameLoop) {
+      return;
+    }
     requestAnimationFrame(gameLoop);
   }
 
-  // Start the game loop
-  gameLoop();
+  function gameLoop2() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    drawSpaceship(); // Draw the spaceship
+    drawAsteroids();
+    drawMissiles();
+    showScore();
+    handleRotation();
+    handleAcceleration();
+    handleMissiles();
+    updateSpaceship();
+    updateMissiles();
+    if (explosion.isActive) {
+      updateExplosion();
+      drawExplosion();
+    }
+    checkMissileHit();
+    checkCollisions();
+    if (currentGameLoop != gameLoop2) {
+      return;
+    }
+    requestAnimationFrame(gameLoop2);
+  }
+
+  let currentGameLoop;
+
+  function switchGameLoop() {
+    // Switch to the other game loop
+    if (currentGameLoop === gameLoop) {
+      currentGameLoop = gameLoop2;
+      otherLoop = gameLoop;
+    } else {
+      currentGameLoop = gameLoop;
+      otherLoop = gameLoop2;
+    }
+  }
+
+  let otherLoop;
+
+  function startRandomloop() {
+    const randomVal = Math.random();
+    if (randomVal < 0.5) {
+      startTimerWhenLoopStarts();
+      currentGameLoop = gameLoop;
+      otherLoop = gameLoop2;
+    } else {
+      startTimerWhenLoopStarts();
+      currentGameLoop = gameLoop2;
+      otherLoop = gameLoop;
+    }
+    requestAnimationFrame(currentGameLoop);
+  }
+
+  function clearEventListeners() {
+    document.removeEventListener("keydown", handleRotation);
+    document.removeEventListener("keydown", handleAcceleration);
+    document.removeEventListener("keydown", handleMissiles);
+  }
+
+  let wantContinue = false;
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      wantContinue = true;
+    }
+  });
+
+  function startSequentially(data) {
+    if (pStage != 6) {
+      return;
+    }
+    score = 0;
+    startRandomloop();
+    setTimeout(() => {
+      clearEventListeners();
+      switchGameLoop();
+      requestAnimationFrame(currentGameLoop);
+    }, 5000);
+  }
+
+  // splashScreen.style.display = "none";
+
+  function onStage0Finish() {
+    clearEventListeners();
+    stage1();
+  }
+
+  function onStage1Finish() {
+    clearEventListeners();
+    stage2();
+  }
+
+  function onStage2Finish() {
+    clearEventListeners();
+    stage3();
+  }
+
+  function onStage3Finish() {
+    clearEventListeners();
+    stage4();
+  }
+
+  function onStage4Finish() {
+    clearEventListeners();
+    stage5();
+  }
+
+  function onStage5Finish() {
+    clearEventListeners();
+    startSequentially();
+  }
+
+  /* initialize jsPsych */
+  // const jsPsych = initJsPsych();
+
+  // var timeline = [];
+  // var setupQuestionnaire = {
+  //   title: "Please fill out the following form:",
+  //   type: jsPsychSurvey,
+  //   pages: [
+  //     [
+  //       {
+  //         type: "text",
+  //         prompt: "Participant ID:",
+  //         required: true,
+  //       },
+  //       {
+  //         type: "text",
+  //         prompt: "Age:",
+  //         required: true,
+  //       },
+  //       {
+  //         type: "text",
+  //         prompt: "Gender:",
+  //         required: true,
+  //       },
+  //       {
+  //         type: "text",
+  //         prompt: "Handedness:",
+  //         required: true,
+  //       },
+  //     ],
+  //   ],
+  // };
+  // timeline.push(setupQuestionnaire);
+
+  // // var trial = {
+  // //   type: jsPsychHtmlKeyboardResponse,
+  // //   stimulus:
+  // //     "This trial is in a loop. Press R to repeat this trial, or C to continue.",
+  // // };
+
+  // // var loop_node = {
+  // //   timeline: [trial],
+  // //   loop_function: function (data) {
+  // //     if (jsPsych.pluginAPI.compareKeys(data.values()[0].response, "r")) {
+  // //       return true;
+  // //     } else {
+  // //       return false;
+  // //     }
+  // //   },
+  // // };
+  // // timeline.push(loop_node);
+
+  // var gameLoopTimeline = [
+  //   {
+  //     timeline: [
+  //       {
+  //         type: jsPsychHtmlKeyboardResponse,
+  //         stimulus: "Press any key to start the game",
+  //         choices: "ALL_KEYS",
+  //         on_finish: function () {
+  //           // Start your game loop when the user presses any key
+  //           console.log("starting loop");
+  //           gameLoop();
+  //         },
+  //       },
+  //     ],
+  //   },
+  // ];
+
+  // jsPsych.run(gameLoopTimeline);
+
+  stage0();
+  nEventListener();
 });
