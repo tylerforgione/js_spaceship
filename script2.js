@@ -144,7 +144,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Call this function to start spawning asteroids every 2000 milliseconds (2 seconds)
-  startAsteroidSpawner(1000); // Adjust the interval as needed
 
   //EXPLOSION CODE
   const explosionSpriteSheet = new Image();
@@ -321,7 +320,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (event.key === " " && !isFiringMissile) {
         createMissile(); // Create a new missile
         isFiringMissile = true; // Set the flag to prevent firing more missiles
-        logSpacebarPress();
       }
     });
 
@@ -641,7 +639,7 @@ document.addEventListener("DOMContentLoaded", function () {
     drawSpaceship(); // Draw the spaceship
     drawAsteroids();
     drawMissiles();
-    // showScore();
+    showScore();
     handleRotation();
     handleAcceleration();
     handleMissiles();
@@ -656,6 +654,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (currentGameLoop != gameLoop) {
       return;
     }
+    startTime = performance.now();
     requestAnimationFrame(gameLoop);
   }
 
@@ -698,6 +697,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let otherLoop;
 
   function startRandomloop() {
+    startAsteroidSpawner(1000); // Adjust the interval as needed
     const randomVal = Math.random();
     if (randomVal < 0.5) {
       startTimerWhenLoopStarts();
@@ -734,6 +734,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
       clearEventListeners();
       switchGameLoop();
+      startAsteroidSpawner(1000); // Adjust the interval as needed
       requestAnimationFrame(currentGameLoop);
     }, 5000);
   }
@@ -770,76 +771,39 @@ document.addEventListener("DOMContentLoaded", function () {
     startSequentially();
   }
 
-  /* initialize jsPsych */
-  // const jsPsych = initJsPsych();
+  // Initialize an array to store spacebar press events
+  const spacebarPressEvents = [];
 
-  // var timeline = [];
-  // var setupQuestionnaire = {
-  //   title: "Please fill out the following form:",
-  //   type: jsPsychSurvey,
-  //   pages: [
-  //     [
-  //       {
-  //         type: "text",
-  //         prompt: "Participant ID:",
-  //         required: true,
-  //       },
-  //       {
-  //         type: "text",
-  //         prompt: "Age:",
-  //         required: true,
-  //       },
-  //       {
-  //         type: "text",
-  //         prompt: "Gender:",
-  //         required: true,
-  //       },
-  //       {
-  //         type: "text",
-  //         prompt: "Handedness:",
-  //         required: true,
-  //       },
-  //     ],
-  //   ],
-  // };
-  // timeline.push(setupQuestionnaire);
+  // Event listener for capturing spacebar press events
+  document.addEventListener("keydown", (event) => {
+    if (event.key === " ") {
+      const timestamp = performance.now(); // Get the current timestamp
+      spacebarPressEvents.push({ timestamp }); // Store the event with timestamp
+      // Send this spacebar press event to the server
+      sendSpacebarPressToServer({ timestamp });
+    }
+  });
 
-  // // var trial = {
-  // //   type: jsPsychHtmlKeyboardResponse,
-  // //   stimulus:
-  // //     "This trial is in a loop. Press R to repeat this trial, or C to continue.",
-  // // };
-
-  // // var loop_node = {
-  // //   timeline: [trial],
-  // //   loop_function: function (data) {
-  // //     if (jsPsych.pluginAPI.compareKeys(data.values()[0].response, "r")) {
-  // //       return true;
-  // //     } else {
-  // //       return false;
-  // //     }
-  // //   },
-  // // };
-  // // timeline.push(loop_node);
-
-  // var gameLoopTimeline = [
-  //   {
-  //     timeline: [
-  //       {
-  //         type: jsPsychHtmlKeyboardResponse,
-  //         stimulus: "Press any key to start the game",
-  //         choices: "ALL_KEYS",
-  //         on_finish: function () {
-  //           // Start your game loop when the user presses any key
-  //           console.log("starting loop");
-  //           gameLoop();
-  //         },
-  //       },
-  //     ],
-  //   },
-  // ];
-
-  // jsPsych.run(gameLoopTimeline);
+  // Function to send spacebar press event to the server
+  function sendSpacebarPressToServer(event) {
+    fetch("http://localhost:3000/submit-spacebar-press", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(event),
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("Spacebar press event saved successfully");
+        } else {
+          console.error("Failed to save spacebar press event");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
 
   stage0();
   nEventListener();
