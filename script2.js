@@ -737,9 +737,10 @@ document.addEventListener("DOMContentLoaded", function () {
       startAsteroidSpawner(1000); // Adjust the interval as needed
       requestAnimationFrame(currentGameLoop);
     }, 5000);
+    setInterval(() => {
+      seeQuestionnaire();
+    }, 5000);
   }
-
-  // splashScreen.style.display = "none";
 
   function onStage0Finish() {
     clearEventListeners();
@@ -805,6 +806,124 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
+  async function exportToCSV() {
+    try {
+      const response = await fetch("/export-to-csv", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Include any necessary request body if needed
+        // body: JSON.stringify({ /* your request body */ }),
+      });
+
+      if (response.ok) {
+        console.log("Export initiated! Check the server logs for progress.");
+      } else {
+        const errorMessage = await response.text();
+        console.error(`Export failed: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+    }
+  }
+
+  window.addEventListener("beforeunload", async function (event) {
+    // Export to CSV before leaving the page
+    await exportToCSV();
+  });
+
+  const modal = document.createElement("div");
+
+  function showQuestionnaire() {
+    // Create a modal or a UI element for the questionnaire
+    modal.id = "questionnaireModal";
+    modal.innerHTML = `
+      <div style="width: 800px; height: 600px; background-color: white; border: 1px solid #ccc; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="questionnaireDiv" style="display: flex; justify-content: space-around;">
+        <h2 class="questionnaireQ" style="text-align: center;">How are you feeling?</h2>
+          <button class="questionnaireBtn" data-answer="+5">+5</button>
+          <button class="questionnaireBtn" data-answer="+4">+4</button>
+          <button class="questionnaireBtn" data-answer="+3">+3</button>
+          <button class="questionnaireBtn" data-answer="+2">+2</button>
+          <button class="questionnaireBtn" data-answer="+1">+1</button>
+          <button class="questionnaireBtn" data-answer="0">0</button>
+          <button class="questionnaireBtn" data-answer="-1">-1</button>
+          <button class="questionnaireBtn" data-answer="-2">-2</button>
+          <button class="questionnaireBtn" data-answer="-3">-3</button>
+          <button class="questionnaireBtn" data-answer="-4">-4</button>
+          <button class="questionnaireBtn" data-answer="-5">-5</button>
+        </div>
+      </div>
+    `;
+
+    // Add the modal to the document
+    document.body.appendChild(modal);
+
+    // Add event listeners to each button
+    const buttons = modal.querySelectorAll(".questionnaireBtn");
+    buttons.forEach((button) => {
+      button.addEventListener("click", handleButtonClick);
+    });
+
+    modal.style.display = "none";
+  }
+
+  function handleButtonClick(event) {
+    const answer = event.target.dataset.answer;
+    console.log(`User's answer: ${answer}`);
+    hideQuestionnaire();
+  }
+
+  let isQuestionnaireVisible = false;
+
+  function seeQuestionnaire() {
+    // Show the questionnaire if it's not already visible
+    if (!isQuestionnaireVisible) {
+      modal.style.display = "block";
+      isQuestionnaireVisible = true;
+    }
+  }
+
+  function hideQuestionnaire() {
+    // Hide the questionnaire
+    modal.style.display = "none";
+    isQuestionnaireVisible = false;
+  }
+
+  // Function to send questionnaire answer to the server
+  function sendQuestionnaireAnswer(answer) {
+    fetch("http://localhost:3000/submit-answer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ answer, qTime: performance.now() }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("Questionnaire answer saved successfully");
+        } else {
+          console.error("Failed to save questionnaire answer");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+
+  // Event listener for questionnaire buttons
+  document.addEventListener("click", (event) => {
+    const isQuestionnaireButton =
+      event.target.classList.contains("questionnaireBtn");
+
+    if (isQuestionnaireButton) {
+      const answer = event.target.dataset.answer; // Assuming the answer is stored as a data attribute
+      sendQuestionnaireAnswer(answer);
+    }
+  });
+
+  showQuestionnaire();
   stage0();
   nEventListener();
 });

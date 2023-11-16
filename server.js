@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const mongodb = require("mongodb").MongoClient;
+const Json2csvParser = require("json2csv").Parser;
+const fs = require("fs");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,6 +13,8 @@ app.use(
     origin: "http://127.0.0.1:5500", // Change this to match your client's origin.
   })
 );
+
+app.use(bodyParser.json());
 
 // Connect to MongoDB (replace 'your_database_url' with your actual MongoDB URL)
 mongoose.connect(
@@ -73,7 +78,56 @@ app.post("/submit-spacebar-press", async (req, res) => {
     res.status(500).send("Failed to save spacebar press event");
   }
 });
-
+setInterval(() => {
+  exportToCSV();
+}, 5000);
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+// Define a schema for the questionnaire answers
+const questionnaireSchema = new mongoose.Schema({
+  answer: String,
+  qTime: Number,
+});
+
+// Create a model based on the schema
+const Questionnaire = mongoose.model("Questionnaire", questionnaireSchema);
+
+// Middleware for parsing JSON data
+app.use(bodyParser.json());
+
+// Route to handle saving questionnaire answers
+app.post("/submit-answer", async (req, res) => {
+  try {
+    const { answer, qTime } = req.body;
+
+    // Create a new Questionnaire instance
+    const questionnaire = new Questionnaire({
+      answer,
+      qTime,
+    });
+
+    // Save the questionnaire data to MongoDB
+    await questionnaire.save();
+
+    res.status(200).send("Questionnaire answer saved successfully");
+  } catch (error) {
+    console.error("Error saving questionnaire answer:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+async function exportToCSV() {
+  console.log(":(");
+  try {
+    const data = await SpacebarPressEvent.find().lean().exec(); // Ensure this returns the desired data
+    const parser = new Parser();
+    const csv = parser.parse(data);
+
+    await fs.writeFile(`output.csv`, csv); // Use 'await' and 'fs.promises.writeFile()' for proper async handling
+    console.log("Exported");
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
