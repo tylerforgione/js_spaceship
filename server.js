@@ -3,8 +3,9 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const mongodb = require("mongodb").MongoClient;
-const Json2csvParser = require("json2csv").Parser;
+const json2csv = require("json2csv").parse;
 const fs = require("fs");
+// const JSON2CSVParser = require("json2csv/JSON2CSVParser");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,9 +14,39 @@ app.use(
     origin: "http://127.0.0.1:5500", // Change this to match your client's origin.
   })
 );
-
+async function exportToCSV() {
+  try {
+    // const data = await SpacebarPressEvent.find().lean().exec(); // Ensure this returns the desired data
+    // const data2 = await Participant.find().lean().exec();
+    // const data3 = await Questionnaire.find().lean().exec();
+    // const csv = json2csv(data);
+    // fs.writeFileSync(`output.csv${subject}`, csv); // Use 'await' and 'fs.promises.writeFile()' for proper async handling
+    // const csv2 = json2csv(data2);
+    // fs.writeFileSync(`output2.csv${subject}`, csv2);
+    // const csv3 = json2csv(data3);
+    // fs.writeFileSync(`output3.csv${subject}`, csv3);
+    // console.log("Exported");
+    const collections = await mongoose.connection.db
+      .listCollections()
+      .toArray();
+    for (const collection of collections) {
+      const collectionName = collection.name;
+      console.log(`Exporting collection: ${collectionName}`);
+      const documents = await mongoose.connection.db
+        .collection(collectionName)
+        .find({})
+        .toArray();
+      const csv = json2csv(documents); // Use json2csv directly here
+      fs.writeFileSync(`${collectionName}.csv`, csv);
+    }
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
 app.use(bodyParser.json());
-
+setInterval(() => {
+  exportToCSV();
+}, 10000);
 // Connect to MongoDB (replace 'your_database_url' with your actual MongoDB URL)
 mongoose.connect(
   "mongodb+srv://tylerforgione26:HMsXmBEcR9QOL4Tp@spaceshipcluster.0qqoxqa.mongodb.net/",
@@ -33,10 +64,9 @@ const participantSchema = new mongoose.Schema({
   handedness: String,
 });
 
-const Participant = mongoose.model("Participant", participantSchema);
+let k = subject;
 
-// Use bodyParser to parse incoming JSON data
-app.use(bodyParser.json());
+const Participant = mongoose.model("Participant", participantSchema);
 
 // Set up a route to handle form submissions
 app.post("/submit-form", (req, res) => {
@@ -78,9 +108,7 @@ app.post("/submit-spacebar-press", async (req, res) => {
     res.status(500).send("Failed to save spacebar press event");
   }
 });
-setInterval(() => {
-  exportToCSV();
-}, 5000);
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
@@ -117,17 +145,3 @@ app.post("/submit-answer", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-async function exportToCSV() {
-  console.log(":(");
-  try {
-    const data = await SpacebarPressEvent.find().lean().exec(); // Ensure this returns the desired data
-    const parser = new Parser();
-    const csv = parser.parse(data);
-
-    await fs.writeFile(`output.csv`, csv); // Use 'await' and 'fs.promises.writeFile()' for proper async handling
-    console.log("Exported");
-  } catch (error) {
-    console.log("Error:", error);
-  }
-}

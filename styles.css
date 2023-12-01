@@ -139,9 +139,10 @@ span {
   height: 60%;
   width: 60%;
   font-weight: bold;
+  font-size: 3rem;
 }
 
 .questionnaireQ {
   color: white;
-  font-size: 26px;
+  font-size: 4rem;
 }
