@@ -274,22 +274,22 @@ document.addEventListener("DOMContentLoaded", function () {
   //GENERAL CODE
   // Arrow key event listeners for rotation
   function handleRotation() {
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowLeft") {
+    document.addEventListener("keydown", (handleRotation) => {
+      if (handleRotation.key === "ArrowLeft") {
         // Start rotating left when the left arrow key is pressed
         rotatingLeft = true;
-      } else if (event.key === "ArrowRight") {
+      } else if (handleRotation.key === "ArrowRight") {
         // Start rotating right when the right arrow key is pressed
         rotatingRight = true;
       }
     });
 
     // Arrow key event listeners for stopping rotation
-    document.addEventListener("keyup", (event) => {
-      if (event.key === "ArrowLeft") {
+    document.addEventListener("keyup", (handleRotation) => {
+      if (handleRotation.key === "ArrowLeft") {
         // Stop rotating left when the left arrow key is released
         rotatingLeft = false;
-      } else if (event.key === "ArrowRight") {
+      } else if (handleRotation.key === "ArrowRight") {
         // Stop rotating right when the right arrow key is released
         rotatingRight = false;
       }
@@ -422,25 +422,28 @@ document.addEventListener("DOMContentLoaded", function () {
   //Define practice stages
   const stages = [
     {
-      name: "Welcome to the Experiment!",
-      instructions: "Press 'N' to continue",
+      name: "Welcome to the Experiment! This is a practice session. You will be asked to practice the various controls for the game.",
+      instructions: "Please press 'n' to continue",
     },
     {
       name: "Rotate Right",
-      instructions: "Use the right arrow key to rotate the spaceship right",
+      instructions:
+        "Use the right arrow key to rotate the spaceship right. Rotate the spaceship at least 360 degrees and then press 'n' to continue",
     },
     {
       name: "Rotate Left",
-      instructions: "Use the left arrow key to rotate the spaceship left",
+      instructions:
+        "Use the left arrow key to rotate the spaceship left. Rotate the spaceship at least 360 degrees and then press 'n' to continue",
     },
     {
       name: "Acceleration",
       instructions:
-        "Use the up arrow key to accelerate. Be careful, there are no brakes!",
+        "Use the up arrow key to accelerate. The spaceship can go outside of the screen. Try going out of bounds 3 times, then press 'n' to continue. Be careful, there are no brakes! ",
     },
     {
       name: "Shooting",
-      instructions: "Press spacebar to shoot asteroids",
+      instructions:
+        "Press spacebar to shoot asteroids. Shoot 5 asteroids and then press 'n' to continue",
     },
     {
       name: "Free Practice",
@@ -516,8 +519,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initial instructions for the first stage
   function firstStageInstructions() {
     document.getElementById("instructions").innerHTML = `
-    <h1>Practice Stage: ${stages[currentStageIndex].name}</h1>
-    <p>${stages[currentStageIndex].instructions}</p>
+    <h1>${stages[0].name}</h1>
+    <p>${stages[0].instructions}</p>
   `;
   }
 
@@ -531,17 +534,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function stage0() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    firstStageInstructions();
     drawSpaceship();
     updateSpaceship();
     if (pStage != 0) {
       onStage0Finish();
       return;
     }
+    firstStageInstructions();
     requestAnimationFrame(stage0);
   }
 
+  var buns = true;
+
   function stage1() {
+    // console.log(localStorage.getItem("id"));
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawSpaceship();
     updateSpaceship();
@@ -555,7 +561,7 @@ document.addEventListener("DOMContentLoaded", function () {
         rotatingRight = false;
       }
     });
-    if (pStage != 1) {
+    if (pStage != 1 && spaceship.angle > 6.28) {
       onStage1Finish();
       return;
     }
@@ -577,7 +583,7 @@ document.addEventListener("DOMContentLoaded", function () {
         rotatingLeft = false;
       }
     });
-    if (pStage != 2) {
+    if (pStage != 2 && spaceship.angle < 0) {
       onStage2Finish();
       return;
     }
@@ -603,6 +609,14 @@ document.addEventListener("DOMContentLoaded", function () {
     updateSpaceship();
     updateMissiles();
     handleMissiles();
+    startAsteroidSpawner();
+    drawAsteroids();
+    if (explosion.isActive) {
+      updateExplosion();
+      drawExplosion();
+    }
+    checkMissileHit();
+    checkCollisions();
     if (pStage != 4) {
       onStage4Finish();
       return;
@@ -748,6 +762,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function onStage1Finish() {
+    ctx.restore();
     clearEventListeners();
     stage2();
   }
@@ -781,18 +796,22 @@ document.addEventListener("DOMContentLoaded", function () {
       const timestamp = performance.now(); // Get the current timestamp
       spacebarPressEvents.push({ timestamp }); // Store the event with timestamp
       // Send this spacebar press event to the server
+      console.log(timestamp);
       sendSpacebarPressToServer({ timestamp });
     }
   });
 
   // Function to send spacebar press event to the server
   function sendSpacebarPressToServer(event) {
+    const id = localStorage.getItem("id");
+    //localStorage.removeItem("id");
+    console.log(id);
     fetch("http://localhost:3000/submit-spacebar-press", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(event),
+      body: JSON.stringify({ event, id }),
     })
       .then((response) => {
         if (response.status === 200) {
@@ -842,17 +861,17 @@ document.addEventListener("DOMContentLoaded", function () {
       <div style="width: 800px; height: 600px; background-color: white; border: 1px solid #ccc; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <div class="questionnaireDiv" style="display: flex; justify-content: space-around;">
         <h2 class="questionnaireQ" style="text-align: center;">How are you feeling?</h2>
-          <button class="questionnaireBtn" data-answer="+5">+5</button>
-          <button class="questionnaireBtn" data-answer="+4">+4</button>
-          <button class="questionnaireBtn" data-answer="+3">+3</button>
-          <button class="questionnaireBtn" data-answer="+2">+2</button>
-          <button class="questionnaireBtn" data-answer="+1">+1</button>
-          <button class="questionnaireBtn" data-answer="0">0</button>
-          <button class="questionnaireBtn" data-answer="-1">-1</button>
+          <button class="questionnaireBtn" data-answer="+5">+5 (Very Good)</button>
+          <button class="questionnaireBtn" data-answer="4">+4</button>
+          <button class="questionnaireBtn" data-answer="3">+3 (Good)</button>
+          <button class="questionnaireBtn" data-answer="2">+2</button>
+          <button class="questionnaireBtn" data-answer="1">+1 (Fairly Good)</button>
+          <button class="questionnaireBtn" data-answer="0">0 (Neutral)</button>
+          <button class="questionnaireBtn" data-answer="-1">-1 (Fairly Bad)</button>
           <button class="questionnaireBtn" data-answer="-2">-2</button>
-          <button class="questionnaireBtn" data-answer="-3">-3</button>
+          <button class="questionnaireBtn" data-answer="-3">-3 (Bad)</button>
           <button class="questionnaireBtn" data-answer="-4">-4</button>
-          <button class="questionnaireBtn" data-answer="-5">-5</button>
+          <button class="questionnaireBtn" data-answer="-5">-5 (Very bad)</button>
         </div>
       </div>
     `;
@@ -893,12 +912,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function to send questionnaire answer to the server
   function sendQuestionnaireAnswer(answer) {
+    const id = localStorage.getItem("id");
+    console.log(id);
     fetch("http://localhost:3000/submit-answer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ answer, qTime: performance.now() }),
+      body: JSON.stringify({ id, answer, qTime: performance.now() }),
     })
       .then((response) => {
         if (response.ok) {
