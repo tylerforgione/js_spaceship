@@ -20,8 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ctx.restore(); // Restore the canvas state
   }
 
-  spaceshipSprite.src =
-    "_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/ship1.png";
+  spaceshipSprite.src = "ship1.png";
 
   // Define spaceship properties
   const spaceship = {
@@ -44,15 +43,13 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateSpaceship() {
     // Update speed (accelerate when up arrow key is pressed)
     if (accelerating) {
-      spaceshipSprite.src =
-        "_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/ship2.png";
+      spaceshipSprite.src = "ship2.png";
       // Accelerate forward when the up arrow key is pressed
       if (spaceship.speed < spaceship.maxSpeed) {
         spaceship.speed += spaceship.acceleration;
       }
     } else {
-      spaceshipSprite.src =
-        "_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/ship1.png";
+      spaceshipSprite.src = "ship1.png";
       // Decelerate when the up arrow key is released
       if (spaceship.speed > 0) {
         spaceship.speed -= spaceship.deceleration;
@@ -98,8 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  asteroidSprite.src =
-    "_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/asteroid_blue.png";
+  asteroidSprite.src = "asteroid_blue.png";
 
   // Function to generate a random position for an asteroid
   function generateRandomAsteroidPosition() {
@@ -148,8 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
   //EXPLOSION CODE
   const explosionSpriteSheet = new Image();
 
-  explosionSpriteSheet.src =
-    "_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/explosion_alpha.png";
+  explosionSpriteSheet.src = "explosion_alpha.png";
 
   const explosion = {
     x: 0,
@@ -213,8 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Event listener for firing missiles when the spacebar key is pressed
   let isSpacebarPressed = false; // Flag to track if the spacebar is currently pressed
 
-  missileSprite.src =
-    "_img/commondatastorage.googleapis.com/codeskulptor_assets/lathrop/shot2.png";
+  missileSprite.src = "shot2.png";
 
   // Array to store missile objects
   const missiles = [];
@@ -496,10 +490,10 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   const keyImages = [
-    "_img/keyboard/keyboard_right.png",
-    "_img/keyboard/keyboard_left.png",
-    "_img/keyboard/keyboard_up.png",
-    "_img/keyboard/keyboard_space.png",
+    "keyboard_right.png",
+    "keyboard_left.png",
+    "keyboard_up.png",
+    "keyboard_space.png",
   ];
 
   // Initialize stage manager
