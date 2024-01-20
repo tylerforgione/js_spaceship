@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const missile = {
     width: 4, // Width of the missile
     height: 4, // Height of the missile
-    speed: 3, // Speed of the missile (pixels per frame)
+    speed: 5.5, // Speed of the missile (pixels per frame)
     maxDistance: 200, // Maximum distance the missile can travel
   };
 
@@ -274,22 +274,22 @@ document.addEventListener("DOMContentLoaded", function () {
   //GENERAL CODE
   // Arrow key event listeners for rotation
   function handleRotation() {
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowLeft") {
+    document.addEventListener("keydown", (handleRotation) => {
+      if (handleRotation.key === "ArrowLeft") {
         // Start rotating left when the left arrow key is pressed
         rotatingLeft = true;
-      } else if (event.key === "ArrowRight") {
+      } else if (handleRotation.key === "ArrowRight") {
         // Start rotating right when the right arrow key is pressed
         rotatingRight = true;
       }
     });
 
     // Arrow key event listeners for stopping rotation
-    document.addEventListener("keyup", (event) => {
-      if (event.key === "ArrowLeft") {
+    document.addEventListener("keyup", (handleRotation) => {
+      if (handleRotation.key === "ArrowLeft") {
         // Stop rotating left when the left arrow key is released
         rotatingLeft = false;
-      } else if (event.key === "ArrowRight") {
+      } else if (handleRotation.key === "ArrowRight") {
         // Stop rotating right when the right arrow key is released
         rotatingRight = false;
       }
@@ -370,6 +370,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // Trigger an explosion at the collision point
           startExplosion(asteroid.x, asteroid.y);
           asteroidCount--;
+          numHit++;
           score += 10;
 
           // Remove the missile and asteroid from their respective arrays
@@ -393,16 +394,40 @@ document.addEventListener("DOMContentLoaded", function () {
     let intervalId = setInterval(function () {
       let minutes = parseInt(timer / 60, 10);
       let seconds = parseInt(timer % 60, 10);
+      let milliseconds = parseInt((timer - Math.floor(timer)) * 1000, 10); // Extract milliseconds
 
       minutes = minutes < 10 ? "0" + minutes : minutes;
       seconds = seconds < 10 ? "0" + seconds : seconds;
+      milliseconds = milliseconds < 100 ? "0" + milliseconds : milliseconds; // Adjust for three-digit display
 
       display.textContent = `${minutes}:${seconds}`;
 
       if (--timer < 0) {
-        clearInterval(intervalId); // Clear the interval when the timer reaches 0
+        clearInterval(intervalId);
+        endGame(); // Clear the interval when the timer reaches 0
       }
-    }, 1000);
+    }, 1000); // Update every 100 milliseconds
+
+    move();
+  }
+
+  var i = 0;
+  function move() {
+    if (i == 0) {
+      i = 1;
+      var elem = document.getElementById("myBar");
+      var width = 1;
+      var id = setInterval(frame, 9000);
+      function frame() {
+        if (width >= 100) {
+          clearInterval(id);
+          i = 0;
+        } else {
+          width++;
+          elem.style.width = width + "%";
+        }
+      }
+    }
   }
 
   function setTimer(duration) {
@@ -411,7 +436,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Call this function to start the timer when your loop or event begins
   function startTimerWhenLoopStarts() {
-    var fiveMinutes = 60 * 5 - 1;
+    var fiveMinutes = 60 * 15 - 1;
     var display = document.querySelector("#timer");
     var initialTimerValue = setTimer(fiveMinutes);
     startTimer(initialTimerValue, display);
@@ -419,32 +444,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //PRACTICE
 
+  // bonus credit/money
+  //if you miss questionnaires you dont get a bonus
+  //if you dont see the checkmark and press n you have to reload
+
   //Define practice stages
   const stages = [
     {
       name: "Welcome to the Experiment!",
-      instructions: "Press 'N' to continue",
+      instructions:
+        "This is a practice session. You will be asked to practice the various controls for the game. When you complete a stage successfully, you will see a green checkmark. You may then press 'n' to continue to the next stage. You must complete all practice stages, otherwise you will have to restart! If you go to the next stage before seeing the green checkmark, you will be forced to reload the page. You will have the opportunity to gain a bonus after the experiment. Please press 'n' to continue",
     },
     {
       name: "Rotate Right",
-      instructions: "Use the right arrow key to rotate the spaceship right",
+      instructions:
+        "Use the right arrow key to rotate the spaceship right. Rotate the spaceship at least 360 degrees and then press 'n' to continue",
     },
     {
       name: "Rotate Left",
-      instructions: "Use the left arrow key to rotate the spaceship left",
+      instructions:
+        "Use the left arrow key to rotate the spaceship left. Rotate the spaceship at least 360 degrees and then press 'n' to continue",
     },
     {
       name: "Acceleration",
       instructions:
-        "Use the up arrow key to accelerate. Be careful, there are no brakes!",
+        "Use the up arrow key to accelerate. The spaceship can go outside of the screen. Try going out of bounds 3 times, then press 'n' to continue. Be careful, there are no brakes! ",
     },
     {
       name: "Shooting",
-      instructions: "Press spacebar to shoot asteroids",
+      instructions:
+        "Press spacebar to shoot asteroids. Your score will be on the top left corner of the screen. It will increase by 10 with every accurate hit and decrease by 5 every time your spaceship collides with an asteroid. Shoot 5 asteroids and then press 'n' to continue",
+    },
+    {
+      name: "Questionnaire",
+      instructions:
+        "In the next stage, you will be asked to indicate how good or bad you are feeling right now. You can choose your answer using the mouse. Please try to be as accurate as possible. In the upcoming stages, every 30 seconds of the game you will be asked to rate this questionnaire. In the next screen you will have 100 seconds to answer, but in the following stages, you will only have 10 seconds. To give you time to prepare for the game again, the questionnaire will stay up for 1 second after you answer. <strong> If you fail to respond to too many questionnaires, you will not get a bonus at the end of the experiment. </strong> Press 'n' to continue",
+    },
+    {
+      name: "",
+      instructions: ``,
     },
     {
       name: "Free Practice",
-      instructions: "You can practice freely!",
+      instructions:
+        "You can practice freely! Press 'n' to continue and the game will begin!",
     },
     {
       name: "",
@@ -516,8 +559,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initial instructions for the first stage
   function firstStageInstructions() {
     document.getElementById("instructions").innerHTML = `
-    <h1>Practice Stage: ${stages[currentStageIndex].name}</h1>
-    <p>${stages[currentStageIndex].instructions}</p>
+    <h1>${stages[0].name}</h1>
+    <p>${stages[0].instructions}</p>
   `;
   }
 
@@ -531,17 +574,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function stage0() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    firstStageInstructions();
     drawSpaceship();
     updateSpaceship();
     if (pStage != 0) {
       onStage0Finish();
       return;
     }
+    firstStageInstructions();
     requestAnimationFrame(stage0);
   }
 
+  var buns = true;
+
+  // Create a div element for the checkmark
+  const checkmarkDiv = document.createElement("div");
+  checkmarkDiv.innerHTML = "&#x2713;"; // Checkmark Unicode
+
+  // Apply styles
+  checkmarkDiv.style.fontSize = "50px";
+  checkmarkDiv.style.color = "green";
+  checkmarkDiv.style.position = "fixed";
+  checkmarkDiv.style.top = "50%";
+  checkmarkDiv.style.left = "50%";
+  checkmarkDiv.style.transform = "translate(-50%, -50%)";
+
+  // Append the checkmark element to the body
+  document.body.appendChild(checkmarkDiv);
+
+  checkmarkDiv.style.display = "none";
+
   function stage1() {
+    // console.log(localStorage.getItem("id"));
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawSpaceship();
     updateSpaceship();
@@ -555,7 +618,10 @@ document.addEventListener("DOMContentLoaded", function () {
         rotatingRight = false;
       }
     });
-    if (pStage != 1) {
+    if (spaceship.angle > 6.28) {
+      checkmarkDiv.style.display = "block";
+    }
+    if (pStage != 1 && spaceship.angle > 6.28) {
       onStage1Finish();
       return;
     }
@@ -577,24 +643,42 @@ document.addEventListener("DOMContentLoaded", function () {
         rotatingLeft = false;
       }
     });
-    if (pStage != 2) {
+    if (spaceship.angle < 0) {
+      checkmarkDiv.style.display = "block";
+    }
+    if (pStage != 2 && spaceship.angle < 0) {
       onStage2Finish();
       return;
     }
     requestAnimationFrame(stage2);
   }
 
+  let outBounds = 0;
+
   function stage3() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawSpaceship();
     handleAcceleration();
     updateSpaceship();
-    if (pStage != 3) {
+    if (
+      spaceship.x >= canvas.width ||
+      spaceship.x <= 0 ||
+      spaceship.y >= canvas.height ||
+      spaceship.y <= 0
+    ) {
+      outBounds++;
+    }
+    if (outBounds >= 3) {
+      checkmarkDiv.style.display = "block";
+    }
+    if (pStage != 3 && outBounds >= 3) {
       onStage3Finish();
       return;
     }
     requestAnimationFrame(stage3);
   }
+
+  let numHit = 0;
 
   function stage4() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -603,7 +687,19 @@ document.addEventListener("DOMContentLoaded", function () {
     updateSpaceship();
     updateMissiles();
     handleMissiles();
-    if (pStage != 4) {
+    showScore();
+    drawAsteroids();
+    if (explosion.isActive) {
+      updateExplosion();
+      drawExplosion();
+    }
+    checkMissileHit();
+    checkCollisions();
+    console.log(numHit);
+    if (numHit >= 5) {
+      checkmarkDiv.style.display = "block";
+    }
+    if (pStage != 4 && numHit >= 5) {
       onStage4Finish();
       return;
     }
@@ -613,13 +709,13 @@ document.addEventListener("DOMContentLoaded", function () {
   function stage5() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawSpaceship();
-    drawAsteroids();
     drawMissiles();
-    handleRotation();
-    handleAcceleration();
-    handleMissiles();
     updateSpaceship();
     updateMissiles();
+    handleMissiles();
+    showScore();
+    startAsteroidSpawner();
+    drawAsteroids();
     if (explosion.isActive) {
       updateExplosion();
       drawExplosion();
@@ -632,6 +728,76 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     requestAnimationFrame(stage5);
   }
+
+  var answeredQ = false;
+  var canSeeQ = false;
+  var wannaGo = false;
+
+  function stage6() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSpaceship();
+    drawMissiles();
+    updateSpaceship();
+    updateMissiles();
+    handleMissiles();
+    showScore();
+    startAsteroidSpawner();
+    drawAsteroids();
+    if (explosion.isActive) {
+      updateExplosion();
+      drawExplosion();
+    }
+    checkMissileHit();
+    checkCollisions();
+    if (!canSeeQ) {
+      seeQuestionnaire();
+      countdown(100 * 1000);
+      canSeeQ = true;
+    }
+    if (canSeeQ) {
+      setTimeout(() => {
+        wannaGo = true;
+        hideQuestionnaire();
+      }, 100 * 1000);
+    }
+    if (answeredQ == true) {
+      hideQuestionnaire();
+      checkmarkDiv.style.display = "block";
+    }
+    if (pStage != 6) {
+      onStage6Finish();
+      return;
+    }
+    requestAnimationFrame(stage6);
+  }
+
+  var timerON = false;
+
+  function stage7() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSpaceship();
+    drawAsteroids();
+    drawMissiles();
+    handleRotation();
+    handleAcceleration();
+    handleMissiles();
+    updateSpaceship();
+    updateMissiles();
+    showScore();
+    if (explosion.isActive) {
+      updateExplosion();
+      drawExplosion();
+    }
+    checkMissileHit();
+    checkCollisions();
+    if (pStage != 7) {
+      onStage7Finish();
+      return;
+    }
+    requestAnimationFrame(stage7);
+  }
+
+  var startTime = 0;
 
   // Game loop to continuously update and draw the spaceship
   function gameLoop() {
@@ -654,7 +820,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (currentGameLoop != gameLoop) {
       return;
     }
-    startTime = performance.now();
+    if (end) {
+      cancelAnimationFrame(currentGameLoop);
+      return;
+    }
+    if (startTime === 0) {
+      startTime = performance.now();
+      console.log(startTime);
+    }
     requestAnimationFrame(gameLoop);
   }
 
@@ -676,6 +849,10 @@ document.addEventListener("DOMContentLoaded", function () {
     checkMissileHit();
     checkCollisions();
     if (currentGameLoop != gameLoop2) {
+      return;
+    }
+    if (end) {
+      cancelAnimationFrame(currentGameLoop);
       return;
     }
     requestAnimationFrame(gameLoop2);
@@ -725,10 +902,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  var seeQ = false;
+  var practice = true;
+
   function startSequentially(data) {
-    if (pStage != 6) {
-      return;
-    }
+    // if (pStage != 6) {
+    //   console.log("test");
+    //   //return;
+    // }
+    practice = false;
     score = 0;
     startRandomloop();
     setTimeout(() => {
@@ -738,8 +920,17 @@ document.addEventListener("DOMContentLoaded", function () {
       requestAnimationFrame(currentGameLoop);
     }, 5000);
     setInterval(() => {
+      if (end === true) {
+        return;
+      }
       seeQuestionnaire();
-    }, 5000);
+      seeQ = true;
+      countdown(10 * 1000);
+      startqTimerDuringQ();
+      setTimeout(() => {
+        hideQuestionnaire();
+      }, 10000);
+    }, 30000);
   }
 
   function onStage0Finish() {
@@ -748,27 +939,54 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function onStage1Finish() {
+    ctx.restore();
     clearEventListeners();
+    checkmarkDiv.style.display = "none";
     stage2();
   }
 
   function onStage2Finish() {
     clearEventListeners();
+    checkmarkDiv.style.display = "none";
     stage3();
   }
 
   function onStage3Finish() {
     clearEventListeners();
+    checkmarkDiv.style.display = "none";
+    startAsteroidSpawner();
     stage4();
   }
 
   function onStage4Finish() {
     clearEventListeners();
+    checkmarkDiv.style.display = "none";
+    score = 0;
     stage5();
   }
 
   function onStage5Finish() {
     clearEventListeners();
+    checkmarkDiv.style.display = "none";
+    score = 0;
+    stage6();
+  }
+
+  function onStage6Finish() {
+    clearEventListeners();
+    checkmarkDiv.style.display = "none";
+    startTimer2(450, document.querySelector(".random"));
+    document.querySelector(".random").style.display = "block";
+    stage7();
+  }
+
+  var wannaQuit = false;
+
+  function onStage7Finish() {
+    clearEventListeners();
+    wannaQuit = true;
+    document.querySelector(".random").style.visibility = "hidden";
+    pracOverScreen.style.display = "none";
     startSequentially();
   }
 
@@ -778,21 +996,30 @@ document.addEventListener("DOMContentLoaded", function () {
   // Event listener for capturing spacebar press events
   document.addEventListener("keydown", (event) => {
     if (event.key === " ") {
-      const timestamp = performance.now(); // Get the current timestamp
+      var timestamp;
+      if (practice) {
+        timestamp = -1;
+      } else {
+        timestamp = performance.now() - startTime;
+      }
       spacebarPressEvents.push({ timestamp }); // Store the event with timestamp
       // Send this spacebar press event to the server
+      console.log(timestamp);
       sendSpacebarPressToServer({ timestamp });
     }
   });
 
   // Function to send spacebar press event to the server
   function sendSpacebarPressToServer(event) {
+    const id = localStorage.getItem("id");
+    //localStorage.removeItem("id");
+    console.log(id);
     fetch("http://localhost:3000/submit-spacebar-press", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(event),
+      body: JSON.stringify({ event, id }),
     })
       .then((response) => {
         if (response.status === 200) {
@@ -842,17 +1069,18 @@ document.addEventListener("DOMContentLoaded", function () {
       <div style="width: 800px; height: 600px; background-color: white; border: 1px solid #ccc; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <div class="questionnaireDiv" style="display: flex; justify-content: space-around;">
         <h2 class="questionnaireQ" style="text-align: center;">How are you feeling?</h2>
-          <button class="questionnaireBtn" data-answer="+5">+5</button>
-          <button class="questionnaireBtn" data-answer="+4">+4</button>
-          <button class="questionnaireBtn" data-answer="+3">+3</button>
-          <button class="questionnaireBtn" data-answer="+2">+2</button>
-          <button class="questionnaireBtn" data-answer="+1">+1</button>
-          <button class="questionnaireBtn" data-answer="0">0</button>
-          <button class="questionnaireBtn" data-answer="-1">-1</button>
+        <h3 id="qTimer" style="font-size: 24px;"></h3>
+          <button class="questionnaireBtn" data-answer="5">+5 (Very Good)</button>
+          <button class="questionnaireBtn" data-answer="4">+4</button>
+          <button class="questionnaireBtn" data-answer="3">+3 (Good)</button>
+          <button class="questionnaireBtn" data-answer="2">+2</button>
+          <button class="questionnaireBtn" data-answer="1">+1 (Fairly Good)</button>
+          <button class="questionnaireBtn" data-answer="0">0 (Neutral)</button>
+          <button class="questionnaireBtn" data-answer="-1">-1 (Fairly Bad)</button>
           <button class="questionnaireBtn" data-answer="-2">-2</button>
-          <button class="questionnaireBtn" data-answer="-3">-3</button>
+          <button class="questionnaireBtn" data-answer="-3">-3 (Bad)</button>
           <button class="questionnaireBtn" data-answer="-4">-4</button>
-          <button class="questionnaireBtn" data-answer="-5">-5</button>
+          <button class="questionnaireBtn" data-answer="-5">-5 (Very bad)</button>
         </div>
       </div>
     `;
@@ -870,9 +1098,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function handleButtonClick(event) {
+    answeredQ = true;
     const answer = event.target.dataset.answer;
     console.log(`User's answer: ${answer}`);
-    hideQuestionnaire();
+    //1.5 second delay until questionnaire goes away
+    setTimeout(() => {
+      hideQuestionnaire();
+    }, 1000);
   }
 
   let isQuestionnaireVisible = false;
@@ -885,20 +1117,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  let stop = false;
+
   function hideQuestionnaire() {
     // Hide the questionnaire
     modal.style.display = "none";
     isQuestionnaireVisible = false;
+    stop = true;
   }
 
   // Function to send questionnaire answer to the server
   function sendQuestionnaireAnswer(answer) {
+    const id = localStorage.getItem("id");
+    console.log(id);
+    if (practice) {
+      qTime = -1;
+    } else {
+      qTime = performance.now() - startTime;
+    }
     fetch("http://localhost:3000/submit-answer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ answer, qTime: performance.now() }),
+      body: JSON.stringify({ id, answer, qTime }),
     })
       .then((response) => {
         if (response.ok) {
@@ -922,6 +1164,78 @@ document.addEventListener("DOMContentLoaded", function () {
       sendQuestionnaireAnswer(answer);
     }
   });
+
+  let end = false;
+
+  function endGame() {
+    end = true;
+    hideQuestionnaire();
+    const gameOverScreen = document.createElement("div");
+    gameOverScreen.innerHTML = `
+      <div style="color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+        <h1>Session Over</h1>
+        <p style="color: white";">This session is now over. You may close the tab. Thank you for playing!</p>
+      </div>
+    `;
+
+    // Add the game-over screen to the document body
+    document.body.appendChild(gameOverScreen);
+  }
+
+  function countdown(timerleft) {
+    var timeLeft = timerleft; // 10 seconds in milliseconds
+    var timer = setInterval(function () {
+      var seconds = Math.floor(timeLeft / 1000);
+      var remainingMilliseconds = timeLeft % 1000;
+
+      document.getElementById("qTimer").innerHTML =
+        seconds + ":" + remainingMilliseconds;
+      timeLeft -= 10;
+
+      if (timeLeft < 0) {
+        timeLeft = 10 * 1000;
+        clearInterval(timer);
+        hideQuestionnaire();
+      }
+
+      if (wannaGo) {
+        timeLeft = 10 * 1000;
+        clearInterval(timer);
+      }
+    }, 10); // update every 10 milliseconds
+  }
+
+  const pracOverScreen = document.createElement("div");
+  pracOverScreen.innerHTML = `
+  <div style="color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+    <h1>Practice Over</h1>
+    <p style="color: white";">Press 'n' to continue to the main game!</p>
+  </div>
+`;
+  document.body.appendChild(pracOverScreen);
+  pracOverScreen.style.display = "none";
+
+  function startTimer2(timer, display) {
+    let intervalId = setInterval(function () {
+      let minutes = parseInt(timer / 60, 10);
+      let seconds = parseInt(timer % 60, 10);
+      let milliseconds = parseInt((timer - Math.floor(timer)) * 1000, 10); // Extract milliseconds
+
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      milliseconds = milliseconds < 100 ? "0" + milliseconds : milliseconds; // Adjust for three-digit display
+
+      display.textContent = `${minutes}:${seconds}`;
+
+      if (--timer < 0) {
+        pracOverScreen.style.display = "block";
+        clearInterval(intervalId);
+      }
+      if (wannaQuit === true) {
+        clearInterval(intervalId);
+      }
+    }, 1000); // Update every 100 milliseconds
+  }
 
   showQuestionnaire();
   stage0();
