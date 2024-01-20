@@ -2,25 +2,57 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js"></script>
-    <title>Spaceship Game</title>
+    <title>Game Setup</title>
+    <link rel="stylesheet" href="setup.css" />
   </head>
   <body>
-    <div id="instructions"></div>
-    <img id="keyImage" src="" alt="Key Image" height="0px" width="0px" />
-    <div class="game-container">
-      <div class="debris debris1"></div>
-      <div class="debris debris2"></div>
-      <canvas id="game-canvas"> </canvas>
-      <div class="score-timer-flex">
-        <span id="timer"></span>
-        <span id="score-tracker"></span>
+    <div class="setup-container">
+      <h1>Please Fill Out the Form</h1>
+      <div class="form-canvas">
+        <div class="form-container">
+          <form id="setupForm">
+            <div class="question-container">
+              <label for="subject">Participant ID:</label>
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                required
+              /><br /><br />
+            </div>
+
+            <div class="question-container">
+              <label for="age">Age:</label>
+              <input type="text" id="age" name="age" required /><br /><br />
+            </div>
+
+            <div class="question-container">
+              <label for="gender">Gender:</label>
+              <input
+                type="text"
+                id="gender"
+                name="gender"
+                required
+              /><br /><br />
+            </div>
+
+            <div class="question-container">
+              <label for="handedness">Handedness</label>
+              <span>(L/R):</span>
+              <input
+                type="text"
+                id="handedness"
+                name="handedness"
+                required
+              /><br /><br />
+            </div>
+
+            <button type="submit">Submit</button>
+          </form>
+        </div>
       </div>
     </div>
-    <script src="script2.js"></script>
+    <script src="setup.js"></script>
     <script type="express" src="server.js"></script>
   </body>
 </html>
