@@ -410,6 +410,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (i == 0) {
       i = 1;
       var elem = document.getElementById("myBar");
+      elem.style.display = "none";
       var width = 1;
       var id = setInterval(frame, 9000);
       function frame() {
@@ -430,10 +431,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Call this function to start the timer when your loop or event begins
   function startTimerWhenLoopStarts() {
-    var fiveMinutes = 60 * 15 - 1;
+    var fiveMinutes = 60 * 4 - 1;
     var display = document.querySelector("#timer");
     var initialTimerValue = setTimer(fiveMinutes);
     startTimer(initialTimerValue, display);
+    display.style.display = "none";
   }
 
   //PRACTICE
