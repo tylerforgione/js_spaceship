@@ -399,6 +399,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (--timer < 0) {
         clearInterval(intervalId);
         endGame(); // Clear the interval when the timer reaches 0
+        sendScoreToServer();
       }
     }, 1000); // Update every 100 milliseconds
 
@@ -1237,3 +1238,26 @@ document.addEventListener("DOMContentLoaded", function () {
   stage0();
   nEventListener();
 });
+
+function sendScoreToServer() {
+  const id = localStorage.getItem("id");
+  //localStorage.removeItem("id");
+  console.log(id);
+  fetch("http://localhost:3000/submit-score", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id, score }),
+  })
+    .then((response) => {
+      if (response.status === 200) {
+        console.log("Score saved successfully");
+      } else {
+        console.error("Failed to save score");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}

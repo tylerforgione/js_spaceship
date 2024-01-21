@@ -151,3 +151,36 @@ app.post("/submit-answer", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+const scoreSchema = new mongoose.Schema({
+  id: String,
+  score: Number,
+});
+
+// Create a model based on the schema
+const finalScore = mongoose.model("finalScore", scoreSchema);
+
+// Middleware for parsing JSON data
+app.use(bodyParser.json());
+
+// Route to handle saving questionnaire answers
+app.post("/submit-score", async (req, res) => {
+  try {
+    const { id, score } = req.body;
+    console.log(score);
+
+    // Create a new Questionnaire instance
+    const fscore = new finalScore({
+      id,
+      score,
+    });
+
+    // Save the questionnaire data to MongoDB
+    await fscore.save();
+
+    res.status(200).send("Questionnaire answer saved successfully");
+  } catch (error) {
+    console.error("Error saving questionnaire answer:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
