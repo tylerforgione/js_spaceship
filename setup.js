@@ -35,14 +35,14 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       body: JSON.stringify(formData),
     })
-      .then((response) => {
-        if (response.status === 200) {
-          console.log("Form data saved successfully");
-          // Redirect or perform other actions as needed
-          window.location.href = "please.html";
-        } else {
-          console.error("Failed to save form data");
-        }
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.id);
+        localStorage.setItem("id", data.id);
+        console.log(localStorage.getItem("id"));
+        console.log("Form data saved successfully");
+
+        window.location.href = "please.html";
       })
       .catch((error) => {
         console.error("Error:", error);
