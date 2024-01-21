@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
+  var path = window.location.pathname;
+  if (path == "/please.html") {
+    console.log("please");
+  } else {
+    console.log("not please");
+  }
   // Get the canvas and its context
   const canvas = this.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
