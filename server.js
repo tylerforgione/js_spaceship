@@ -5,6 +5,8 @@ const cors = require("cors");
 const mongodb = require("mongodb").MongoClient;
 const json2csv = require("json2csv").parse;
 const fs = require("fs");
+const path = require("path");
+
 // const JSON2CSVParser = require("json2csv/JSON2CSVParser");
 
 const app = express();
@@ -55,6 +57,25 @@ mongoose.connect(
     useUnifiedTopology: true,
   }
 );
+app.use(express.static(path.join(__dirname, "public")));
+app.get("/short-16", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/please.html"));
+});
+app.get("/short-1", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/please.html"));
+});
+app.get("/short-2-15", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/please.html"));
+});
+app.get("/long-1", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/please.html"));
+});
+app.get("/long-2", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/please.html"));
+});
+app.get("/long-3", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/please.html"));
+});
 
 // Define a MongoDB schema and model for your data
 const participantSchema = new mongoose.Schema({
