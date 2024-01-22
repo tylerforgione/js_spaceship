@@ -77,6 +77,25 @@ app.get("/long-3", (req, res) => {
   res.sendFile(path.join(__dirname, "public/please.html"));
 });
 
+app.get("/setup/short-16", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/setup.html"));
+});
+app.get("/setup/short-1", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/setup.html"));
+});
+app.get("/setup/short-2-15", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/setup.html"));
+});
+app.get("/setup/long-1", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/setup.html"));
+});
+app.get("/setup/long-2", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/setup.html"));
+});
+app.get("/setup/long-3", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/setup.html"));
+});
+
 // Define a MongoDB schema and model for your data
 const participantSchema = new mongoose.Schema({
   subject: String,
