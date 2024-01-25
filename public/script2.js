@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const shortIntro =
     path == "/short-2-15" ||
     path == "/short-16" ||
-    path == "/long-1" ||
     path == "/long-3" ||
     path == "/long-2";
   /**
@@ -461,9 +460,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const fifteen = 60 * 15 - 1;
     var display = document.querySelector("#timer");
     var initialTimerValue;
+    if (!isTimer) {
+      display.style.display = "none";
+    }
     switch (path) {
       case "/short-1":
-        initialTimerValue = setTimer(four);
+        initialTimerValue = four;
         break;
       case "/short-2-15":
         initialTimerValue = setTimer(four);
@@ -551,11 +553,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to handle advancing to the next stage
   function advanceToNextStage() {
     pStage++;
-    if (shortIntro && pStage == 1) {
+    if (shortIntro && pStage === 1) {
       pStage = 7;
       startAsteroidSpawner(500);
     }
     const currentStage = stages[pStage];
+    print(currentStage);
     if (pStage < stages.length) {
       // Display instructions for the next stage
       document.getElementById("instructions").innerHTML = `
@@ -610,8 +613,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   function shortInstructions() {
     document.getElementById("instructions").innerHTML = `
-    <h1>SHORT INTRO TITLE</h1>
-    <p>SHORT INTRO BODY</p>
+    <h1>Welcome back to the experiment!</h1>
+    <p>Welcome back! In this session, we will go over the game's controls and let you play around a bit before the session starts. Press the left and right arrow keys to turn left and right, press the up arrow key to accelerate, and press spacebar to shoot missiles at asteroids! Don't forget that there will be questionnaires that you must answer using your mouse cursor. If you miss too many, you will not get a bonus at the end of the experiment. Good Luck! Press 'n' to practice</p>
   `;
   }
 
@@ -633,10 +636,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (shortIntro) {
       shortInstructions();
-    } else {
-      firstStageInstructions();
+      requestAnimationFrame(stage0);
+      return;
     }
-
+    firstStageInstructions();
     requestAnimationFrame(stage0);
   }
 
@@ -770,9 +773,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMissiles();
     handleMissiles();
     showScore();
-    if (!shortIntro) {
-      startAsteroidSpawner();
-    }
+    startAsteroidSpawner();
     drawAsteroids();
     if (explosion.isActive) {
       updateExplosion();
@@ -799,9 +800,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMissiles();
     handleMissiles();
     showScore();
-    if (!shortIntro) {
-      startAsteroidSpawner();
-    }
+    startAsteroidSpawner();
     drawAsteroids();
     if (explosion.isActive) {
       updateExplosion();
@@ -935,19 +934,16 @@ document.addEventListener("DOMContentLoaded", function () {
   let otherLoop;
 
   function startRandomloop() {
-    startAsteroidSpawner(1000); // Adjust the interval as needed
+    startAsteroidSpawner(500); // Adjust the interval as needed
     const randomVal = Math.random();
     if (randomVal < 0.5) {
-      if (isTimer) {
-        startTimerWhenLoopStarts();
-      }
+      startTimerWhenLoopStarts();
 
       currentGameLoop = gameLoop;
       otherLoop = gameLoop2;
     } else {
-      if (isTimer) {
-        startTimerWhenLoopStarts();
-      }
+      startTimerWhenLoopStarts();
+
       currentGameLoop = gameLoop2;
       otherLoop = gameLoop;
     }
@@ -982,7 +978,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
       clearEventListeners();
       switchGameLoop();
-      startAsteroidSpawner(1000); // Adjust the interval as needed
+      startAsteroidSpawner(500); // Adjust the interval as needed
       requestAnimationFrame(currentGameLoop);
     }, 5000);
     setInterval(() => {
@@ -1086,7 +1082,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const id = localStorage.getItem("id");
     //localStorage.removeItem("id");
     console.log(id);
-    fetch("http://localhost:3000/submit-spacebar-press", {
+    fetch("http://localhost:8080/submit-spacebar-press", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1207,7 +1203,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       qTime = performance.now() - startTime;
     }
-    fetch("http://localhost:3000/submit-answer", {
+    fetch("http://localhost:8080/submit-answer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1255,6 +1251,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function countdown(timerleft) {
+    console.log("why");
     var timeLeft = timerleft; // 10 seconds in milliseconds
     var timer = setInterval(function () {
       var seconds = Math.floor(timeLeft / 1000);
@@ -1313,7 +1310,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const id = localStorage.getItem("id");
     //localStorage.removeItem("id");
     console.log(id);
-    fetch("http://localhost:3000/submit-score", {
+    fetch("http://localhost:8080/submit-score", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
