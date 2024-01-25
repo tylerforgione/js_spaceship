@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   const setupForm = document.getElementById("setupForm");
+  const path = window.location.pathname;
+  console.log(path);
 
   setupForm.addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent the default form submission behavior
@@ -28,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // Make an HTTP POST request to your server to save the data
-    fetch("http://localhost:3000/submit-form", {
+    fetch("https://js-spaceship-lucy-conditions.fly.dev/submit-form", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -41,7 +43,28 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("id", data.id);
         console.log(localStorage.getItem("id"));
         console.log("Form data saved successfully");
-        window.location.href = "/short-2-15";
+        switch (path) {
+          case "/setup/short-1":
+            window.location.href = "/short-1";
+            break;
+          case "/setup/short-2-15":
+            window.location.href = "/short-2-15";
+            break;
+          case "/setup/short-16":
+            window.location.href = "/short-16";
+            break;
+          case "/setup/long-1":
+            window.location.href = "/long-1";
+            break;
+          case "/setup/long-2":
+            window.location.href = "/long-2";
+            break;
+          case "/setup/long-3":
+            window.location.href = "/long-3";
+            break;
+          default:
+            window.location.href = "/short-1";
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
