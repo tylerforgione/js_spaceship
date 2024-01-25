@@ -465,19 +465,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     switch (path) {
       case "/short-1":
-        initialTimerValue = four;
+        initialTimerValue = setTimer(four);
+        display.style.display = "none";
         break;
       case "/short-2-15":
         initialTimerValue = setTimer(four);
+        display.style.display = "none";
         break;
       case "/short-16":
         initialTimerValue = setTimer(fifteen);
         break;
       case "/long-1":
         initialTimerValue = setTimer(thirty);
+        display.style.display = "none";
         break;
       case "/long-2":
         initialTimerValue = setTimer(thirty);
+        display.style.display = "none";
         break;
       case "/long-3":
         initialTimerValue = setTimer(fifteen);
@@ -813,12 +817,6 @@ document.addEventListener("DOMContentLoaded", function () {
       countdown(100 * 1000);
       canSeeQ = true;
     }
-    if (canSeeQ) {
-      setTimeout(() => {
-        wannaGo = true;
-        hideQuestionnaire();
-      }, 100 * 1000);
-    }
     if (answeredQ == true) {
       hideQuestionnaire();
       checkmarkDiv.style.display = "block";
@@ -938,12 +936,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const randomVal = Math.random();
     if (randomVal < 0.5) {
       startTimerWhenLoopStarts();
-
       currentGameLoop = gameLoop;
       otherLoop = gameLoop2;
     } else {
-      startTimerWhenLoopStarts();
-
+      if (isTimer) {
+        startTimerWhenLoopStarts();
+      }
       currentGameLoop = gameLoop2;
       otherLoop = gameLoop;
     }
@@ -988,10 +986,6 @@ document.addEventListener("DOMContentLoaded", function () {
       seeQuestionnaire();
       seeQ = true;
       countdown(10 * 1000);
-      startqTimerDuringQ();
-      setTimeout(() => {
-        hideQuestionnaire();
-      }, 10000);
     }, 30000);
   }
 
@@ -1251,7 +1245,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function countdown(timerleft) {
-    console.log("why");
     var timeLeft = timerleft; // 10 seconds in milliseconds
     var timer = setInterval(function () {
       var seconds = Math.floor(timeLeft / 1000);
