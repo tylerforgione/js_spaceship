@@ -10,10 +10,13 @@ const path = require("path");
 // const JSON2CSVParser = require("json2csv/JSON2CSVParser");
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 app.use(
   cors({
-    origin: "http://127.0.0.1:5500", // Change this to match your client's origin.
+    origin: [
+      "http://127.0.0.1:5500",
+      "https://js-spaceship-lucy-conditions.fly.dev",
+    ],
   })
 );
 async function exportToCSV() {
@@ -57,6 +60,9 @@ mongoose.connect(
     useUnifiedTopology: true,
   }
 );
+app.get("/", (req, res) => {
+  res.send("Hello, your server is running!"); // You can customize this response
+});
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/short-16", (req, res) => {
   res.sendFile(path.join(__dirname, "public/please.html"));
