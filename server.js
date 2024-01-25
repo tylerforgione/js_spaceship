@@ -63,6 +63,9 @@ mongoose.connect(
 app.get("/", (req, res) => {
   res.send("Hello, your server is running!"); // You can customize this response
 });
+app.post("/", (req, res) => {
+  res.json({ id: test }); // You can customize this response
+});
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/short-16", (req, res) => {
   res.sendFile(path.join(__dirname, "public/please.html"));
@@ -229,4 +232,9 @@ app.post("/submit-score", async (req, res) => {
     console.error("Error saving questionnaire answer:", error);
     res.status(500).send("Internal Server Error");
   }
+});
+
+app.get("/", (req, res) => {
+  // Logic to fetch or compute data
+  res.json({ data: "This is data from the server." });
 });
