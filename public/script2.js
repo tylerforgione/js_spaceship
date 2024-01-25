@@ -158,6 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function to start spawning asteroids at a specific interval
   function startAsteroidSpawner(interval) {
+    console.log("start");
     setInterval(() => {
       createAsteroid();
     }, interval);
@@ -550,6 +551,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to handle advancing to the next stage
   function advanceToNextStage() {
     pStage++;
+    if (shortIntro && pStage == 1) {
+      pStage = 7;
+      startAsteroidSpawner(500);
+    }
     const currentStage = stages[pStage];
     if (pStage < stages.length) {
       // Display instructions for the next stage
@@ -591,12 +596,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function nEventListener() {
     document.addEventListener("keydown", (event) => {
       if (event.key === "n" || event.key === "N") {
-        if (shortIntro) {
-          pStage = 7;
-          advanceToNextStage();
-          return;
-        }
-
         advanceToNextStage();
       }
     });
@@ -634,10 +633,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (shortIntro) {
       shortInstructions();
-      requestAnimationFrame(stage0);
-      return;
+    } else {
+      firstStageInstructions();
     }
-    firstStageInstructions();
+
     requestAnimationFrame(stage0);
   }
 
@@ -771,7 +770,9 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMissiles();
     handleMissiles();
     showScore();
-    startAsteroidSpawner();
+    if (!shortIntro) {
+      startAsteroidSpawner();
+    }
     drawAsteroids();
     if (explosion.isActive) {
       updateExplosion();
@@ -798,7 +799,9 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMissiles();
     handleMissiles();
     showScore();
-    startAsteroidSpawner();
+    if (!shortIntro) {
+      startAsteroidSpawner();
+    }
     drawAsteroids();
     if (explosion.isActive) {
       updateExplosion();
@@ -832,6 +835,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function stage7() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     drawSpaceship();
     drawAsteroids();
     drawMissiles();
@@ -999,9 +1003,9 @@ document.addEventListener("DOMContentLoaded", function () {
     clearEventListeners();
     if (shortIntro) {
       stage7();
-      return;
+    } else {
+      stage1();
     }
-    stage1();
   }
 
   function onStage1Finish() {
@@ -1020,7 +1024,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function onStage3Finish() {
     clearEventListeners();
     checkmarkDiv.style.display = "none";
-    startAsteroidSpawner();
+    if (!shortIntro) {
+      startAsteroidSpawner();
+    }
     stage4();
   }
 

@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  const path = window.location.pathname;
   const setupForm = document.getElementById("setupForm");
 
   setupForm.addEventListener("submit", function (event) {
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("id", data.id);
         console.log(localStorage.getItem("id"));
         console.log("Form data saved successfully");
-        window.location.href = "/short-2-15";
+        window.location.href = "/short-1";
       })
       .catch((error) => {
         console.error("Error:", error);
