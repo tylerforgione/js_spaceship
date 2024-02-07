@@ -1,3 +1,5 @@
+const { time, clear } = require("console");
+
 document.addEventListener("DOMContentLoaded", function () {
   // 6 minute sessions x 5 blocks (full practice on 1st block)
 
@@ -141,8 +143,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to start spawning asteroids at a specific interval
   function startAsteroidSpawner(interval) {
     console.log("start");
-    setInterval(() => {
+    i = setInterval(() => {
       createAsteroid();
+      if (end) {
+        clearInterval(i);
+      }
     }, interval);
   }
 
@@ -983,7 +988,10 @@ document.addEventListener("DOMContentLoaded", function () {
     practice = false;
     score = 0;
     startRandomloop();
-    setTimeout(() => {
+    if (time) {
+      clearTimeout(time);
+    }
+    time = setTimeout(() => {
       clearEventListeners();
       switchGameLoop();
       startAsteroidSpawner(500); // Adjust the interval as needed
@@ -1180,7 +1188,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const answer = event.target.dataset.answer;
     // console.log(`User's answer: ${answer}`);
     //1.5 second delay until questionnaire goes away
-    setTimeout(() => {
+    if (time1) {
+      clearTimeout(time1);
+    }
+    time1 = setTimeout(() => {
       hideQuestionnaire();
     }, 1000);
   }
@@ -1382,7 +1393,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       countdownElement.textContent = number;
-      setTimeout(function () {
+      if (time2) {
+        clearTimeout(time2);
+      }
+      time2 = setTimeout(function () {
         updateCountdown(number - 1);
       }, 1000);
     }
