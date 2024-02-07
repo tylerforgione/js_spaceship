@@ -1,27 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // 6 minute sessions x 5 blocks (full practice on 1st block)
+
   const path = window.location.pathname;
   const isTimer = path == "/short-16" || path == "/long-3";
-  const shortIntro =
-    path == "/short-2-15" ||
-    path == "/short-16" ||
-    path == "/long-3" ||
-    path == "/long-2";
-  /**
-   * short conditions:
-   * 1. full practice + 4 minutes block (no timer + no progress bar)
-   *     URL NAME: short-1
-   * 2-15. short intro text + 4 minute experimental block (no timer + no progress bar)
-   *     URL NAME: short-2-15
-   * 16. short intro text + 15 minute experimental block (with timer + with progress bar)
-   *     URL NAME: short-16
-   * long conditions
-   * 1. full practice + 30 muinutes experimental block (no timer + no progress bar)
-   *     URL NAME: long-1
-   * 2. short intro text + 30 minute experimental block (no timer + no progress bar)
-   *    URL NAME: long-2
-   * 3. short intro text + 15 minute experimental block (with timer + with progress bar)
-   *   URL NAME: long-3
-   */
+  const shortIntro = path == "/short-16" || path == "/long-3";
+
   // Get the canvas and its context
   const canvas = this.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
@@ -132,8 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
       (asteroid.x - spaceship.x) ** 2 + (asteroid.y - spaceship.y) ** 2
     );
 
-    // Ensure the asteroid doesn't spawn within 10px of the spaceship
-    if (distance < 10) {
+    // Ensure the asteroid doesn't spawn within 30px of the spaceship
+    if (distance < 30) {
       return generateRandomAsteroidPosition(); // Regenerate position
     }
 
@@ -388,7 +371,9 @@ document.addEventListener("DOMContentLoaded", function () {
           // Trigger an explosion at the collision point
           startExplosion(asteroid.x, asteroid.y);
           asteroidCount--;
-          numHit++;
+          if (numHit < 6) {
+            numHit++;
+          }
           score += 10;
 
           // Remove the missile and asteroid from their respective arrays
@@ -408,6 +393,8 @@ document.addEventListener("DOMContentLoaded", function () {
     ).innerHTML = `<span>Score = ${score}</span>`;
   }
 
+  var sessionBlock = 1;
+
   function startTimer(timer, display) {
     let intervalId = setInterval(function () {
       let minutes = parseInt(timer / 60, 10);
@@ -420,10 +407,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
       display.textContent = `${minutes}:${seconds}`;
 
+      // if (!isTimer) {
+      //   if (--timer < 0 && sessionBlock < 5) {
+      //     pauseGame();
+      //     pause = true;
+      //     clearInterval(intervalId);
+      //     sendScoreToServer();
+      //   } else if (--timer < 0 && sessionBlock > 5) {
+      //     endGame();
+      //     sendScoreToServer();
+      //   }
+      // }
       if (--timer < 0) {
         clearInterval(intervalId);
-        endGame(); // Clear the interval when the timer reaches 0
-        sendScoreToServer();
+        endGame();
+      }
+      if (isTimer) {
+        if (--timer < 0) {
+          clearInterval(intervalId);
+          endGame(); // Clear the interval when the timer reaches 0
+          sendScoreToServer();
+        }
       }
     }, 1000); // Update every 100 milliseconds
 
@@ -455,7 +459,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Call this function to start the timer when your loop or event begins
   function startTimerWhenLoopStarts() {
-    const four = 60 * 4 - 1;
+    const four = 6 - 1;
     const thirty = 60 * 30 - 1;
     const fifteen = 60 * 15 - 1;
     var display = document.querySelector("#timer");
@@ -498,11 +502,13 @@ document.addEventListener("DOMContentLoaded", function () {
   //if you dont see the checkmark and press n you have to reload
 
   //Define practice stages
+
+  //if spaceship flashes reload
   const stages = [
     {
       name: "Welcome to the Experiment!",
       instructions:
-        "This is a practice session. You will be asked to practice the various controls for the game. When you complete a stage successfully, you will see a green checkmark. You may then press 'n' to continue to the next stage. You must complete all practice stages, otherwise you will have to restart! If you go to the next stage before seeing the green checkmark, you will be forced to reload the page. You will have the opportunity to gain a bonus after the experiment. Please press 'n' to continue",
+        "This is a practice session. You will be asked to practice the various controls for the game. When you complete a stage successfully, you will see a green checkmark. You may then press 'n' to continue to the next stage. You must complete all practice stages, otherwise you will have to restart! <strong>If you go to the next stage before seeing the green checkmark, you will be forced to reload the page.</strong> You will have the opportunity to gain a bonus after the experiment. Finally, the spaceship may start flickering. If you see this happen during the practice stage, just relaod the page and it will fix itself. Please press 'n' to continue",
     },
     {
       name: "Rotate Right",
@@ -602,8 +608,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // Event listener for the "N" key to advance to the next stage
   function nEventListener() {
     document.addEventListener("keydown", (event) => {
-      if (event.key === "n" || event.key === "N") {
+      if (event.key === "n" || (event.key === "N" && !end)) {
         advanceToNextStage();
+      } else if (event.key === "n" || (event.key === "N" && end)) {
+        console.log("its ova");
+        end = false;
       }
     });
   }
@@ -643,8 +652,7 @@ document.addEventListener("DOMContentLoaded", function () {
       requestAnimationFrame(stage0);
       return;
     }
-    firstStageInstructions();
-    requestAnimationFrame(stage0);
+    anim = requestAnimationFrame(stage0);
   }
 
   var buns = true;
@@ -758,7 +766,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     checkMissileHit();
     checkCollisions();
-    console.log(numHit);
+    // console.log(numHit);
     if (numHit >= 5) {
       checkmarkDiv.style.display = "block";
     }
@@ -879,14 +887,15 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     if (end) {
-      cancelAnimationFrame(currentGameLoop);
+      cancelAnimationFrame(gl1);
       return;
+    } else {
+      gl1 = requestAnimationFrame(currentGameLoop);
     }
     if (startTime === 0) {
       startTime = performance.now();
-      console.log(startTime);
+      // console.log(startTime);
     }
-    requestAnimationFrame(gameLoop);
   }
 
   function gameLoop2() {
@@ -910,10 +919,11 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     if (end) {
-      cancelAnimationFrame(currentGameLoop);
+      cancelAnimationFrame(gl2);
       return;
+    } else {
+      gl2 = requestAnimationFrame(currentGameLoop);
     }
-    requestAnimationFrame(gameLoop2);
   }
 
   let currentGameLoop;
@@ -983,6 +993,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (end === true) {
         return;
       }
+      if (pause) {
+        return;
+      }
       seeQuestionnaire();
       seeQ = true;
       countdown(10 * 1000);
@@ -1049,7 +1062,7 @@ document.addEventListener("DOMContentLoaded", function () {
     wannaQuit = true;
     document.querySelector(".random").style.visibility = "hidden";
     pracOverScreen.style.display = "none";
-    startSequentially();
+    startCountdown();
   }
 
   // Initialize an array to store spacebar press events
@@ -1066,7 +1079,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       spacebarPressEvents.push({ timestamp }); // Store the event with timestamp
       // Send this spacebar press event to the server
-      console.log(timestamp);
+      // console.log(timestamp);
       sendSpacebarPressToServer({ timestamp });
     }
   });
@@ -1075,19 +1088,22 @@ document.addEventListener("DOMContentLoaded", function () {
   function sendSpacebarPressToServer(event) {
     const id = localStorage.getItem("id");
     //localStorage.removeItem("id");
-    console.log(id);
-    fetch("http://localhost:8080/submit-spacebar-press", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ event, id }),
-    })
+    // console.log(id);
+    fetch(
+      "https://js-spaceship-lucy-conditions.fly.dev/submit-spacebar-press",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ event, id }),
+      }
+    )
       .then((response) => {
         if (response.status === 200) {
-          console.log("Spacebar press event saved successfully");
+          // console.log("Spacebar press event saved successfully");
         } else {
-          console.error("Failed to save spacebar press event");
+          // console.error("Failed to save spacebar press event");
         }
       })
       .catch((error) => {
@@ -1107,7 +1123,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (response.ok) {
-        console.log("Export initiated! Check the server logs for progress.");
+        // console.log("Export initiated! Check the server logs for progress.");
       } else {
         const errorMessage = await response.text();
         console.error(`Export failed: ${errorMessage}`);
@@ -1162,7 +1178,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function handleButtonClick(event) {
     answeredQ = true;
     const answer = event.target.dataset.answer;
-    console.log(`User's answer: ${answer}`);
+    // console.log(`User's answer: ${answer}`);
     //1.5 second delay until questionnaire goes away
     setTimeout(() => {
       hideQuestionnaire();
@@ -1191,13 +1207,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to send questionnaire answer to the server
   function sendQuestionnaireAnswer(answer) {
     const id = localStorage.getItem("id");
-    console.log(id);
+    // console.log(id);
     if (practice) {
       qTime = -1;
     } else {
       qTime = performance.now() - startTime;
     }
-    fetch("http://localhost:8080/submit-answer", {
+    fetch("https://js-spaceship-lucy-conditions.fly.dev/submit-answer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1206,7 +1222,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
       .then((response) => {
         if (response.ok) {
-          console.log("Questionnaire answer saved successfully");
+          // console.log("Questionnaire answer saved successfully");
         } else {
           console.error("Failed to save questionnaire answer");
         }
@@ -1228,6 +1244,24 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   let end = false;
+  let pause = false;
+
+  const pauseScreen = document.createElement("div");
+  pauseScreen.innerHTML = `
+    <div style="color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+      <h1>Session Over</h1>
+      <p style="color: white";">This block is now over. You may take a break. When you're ready, press 'n' to continue</p>
+    </div>
+  `;
+  document.body.appendChild(pauseScreen);
+  pauseScreen.style.display = "none";
+
+  function pauseGame() {
+    pause = true;
+    hideQuestionnaire();
+    pauseScreen.style.display = "block";
+    cancelAnimationFrame(startSequentially);
+  }
 
   function endGame() {
     end = true;
@@ -1302,8 +1336,8 @@ document.addEventListener("DOMContentLoaded", function () {
   function sendScoreToServer() {
     const id = localStorage.getItem("id");
     //localStorage.removeItem("id");
-    console.log(id);
-    fetch("http://localhost:8080/submit-score", {
+    // console.log(id);
+    fetch("https://js-spaceship-lucy-conditions.fly.dev/submit-score", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1312,7 +1346,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
       .then((response) => {
         if (response.status === 200) {
-          console.log("Score saved successfully");
+          // console.log("Score saved successfully");
         } else {
           console.error("Failed to save score");
         }
@@ -1325,6 +1359,35 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("myBar").style.width = "0%";
     document.getElementById("myProgress").style.width = "0%";
   }
+
+  var countdownElement = document.createElement("div");
+  countdownElement.style.position = "fixed";
+  countdownElement.style.top = "50%";
+  countdownElement.style.left = "50%";
+  countdownElement.style.transform = "translate(-50%, -50%)";
+  countdownElement.style.fontFamily = "sans-serif";
+  countdownElement.style.fontWeight = "bold";
+  countdownElement.style.fontSize = "12rem";
+  countdownElement.style.color = "red";
+  document.body.appendChild(countdownElement);
+  countdownElement.style.display = "none";
+
+  function startCountdown() {
+    countdownElement.style.display = "block";
+    updateCountdown(3);
+    function updateCountdown(number) {
+      if (number < 1) {
+        startSequentially();
+        countdownElement.style.display = "none";
+        return;
+      }
+      countdownElement.textContent = number;
+      setTimeout(function () {
+        updateCountdown(number - 1);
+      }, 1000);
+    }
+  }
+
   showQuestionnaire();
   stage0();
   nEventListener();
