@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const path = window.location.pathname;
   const isTimer = path == "/short-16" || path == "/long-3";
   const shortIntro = path == "/short-16" || path == "/long-3";
-
+  const thurtMins = path == "/long-1" || path == "/long-2";
   // Get the canvas and its context
   const canvas = this.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
@@ -417,6 +417,11 @@ document.addEventListener("DOMContentLoaded", function () {
       //     sendScoreToServer();
       //   }
       // }
+      if (thurtMins) {
+        clearInterval(intervalId);
+        endGame();
+        sendScoreToServer();
+      }
       if (--timer < 0) {
         clearInterval(intervalId);
         endGame();
@@ -879,11 +884,10 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     if (end) {
-      cancelAnimationFrame(gl1);
+      cancelAnimationFrame(currentGameLoop);
       return;
-    } else {
-      gl1 = requestAnimationFrame(currentGameLoop);
     }
+    requestAnimationFrame(currentGameLoop);
     if (startTime === 0) {
       startTime = performance.now();
       // console.log(startTime);
@@ -911,11 +915,10 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     if (end) {
-      cancelAnimationFrame(gl2);
+      cancelAnimationFrame(currentGameLoop);
       return;
-    } else {
-      gl2 = requestAnimationFrame(currentGameLoop);
     }
+    requestAnimationFrame(currentGameLoop);
   }
 
   let currentGameLoop;
@@ -1254,6 +1257,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function endGame() {
     end = true;
     hideQuestionnaire();
+    window.location.href = "blockOver.html";
     const gameOverScreen = document.createElement("div");
     gameOverScreen.innerHTML = `
       <div style="color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
@@ -1375,6 +1379,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 1000);
     }
   }
+
+  var block = 1;
+  console.log(localStorage.getItem("root"));
 
   showQuestionnaire();
   stage0();
