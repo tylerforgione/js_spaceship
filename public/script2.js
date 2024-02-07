@@ -1,3 +1,5 @@
+const { time, clear } = require("console");
+
 document.addEventListener("DOMContentLoaded", function () {
   // 6 minute sessions x 5 blocks (full practice on 1st block)
 
@@ -140,8 +142,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function to start spawning asteroids at a specific interval
   function startAsteroidSpawner(interval) {
-    setInterval(() => {
+    console.log("start");
+    i = setInterval(() => {
       createAsteroid();
+      if (end) {
+        clearInterval(i);
+      }
     }, interval);
   }
 
@@ -468,6 +474,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const fifteen = 60 * 15 - 1;
     var display = document.querySelector("#timer");
     var initialTimerValue;
+    if (!isTimer) {
+      display.style.display = "none";
+    }
     switch (path) {
       case "/short-1":
         initialTimerValue = setTimer(four);
@@ -569,6 +578,7 @@ document.addEventListener("DOMContentLoaded", function () {
       startAsteroidSpawner(500);
     }
     const currentStage = stages[pStage];
+    print(currentStage);
     if (pStage < stages.length) {
       // Display instructions for the next stage
       document.getElementById("instructions").innerHTML = `
@@ -649,8 +659,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (shortIntro) {
       shortInstructions();
-    } else {
-      firstStageInstructions();
+      requestAnimationFrame(stage0);
+      return;
     }
     anim = requestAnimationFrame(stage0);
   }
@@ -785,6 +795,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMissiles();
     handleMissiles();
     showScore();
+    startAsteroidSpawner();
     drawAsteroids();
     if (explosion.isActive) {
       updateExplosion();
@@ -811,6 +822,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMissiles();
     handleMissiles();
     showScore();
+    startAsteroidSpawner();
     drawAsteroids();
     if (explosion.isActive) {
       updateExplosion();
@@ -838,6 +850,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function stage7() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     drawSpaceship();
     drawAsteroids();
     drawMissiles();
@@ -944,7 +957,9 @@ document.addEventListener("DOMContentLoaded", function () {
       currentGameLoop = gameLoop;
       otherLoop = gameLoop2;
     } else {
-      startTimerWhenLoopStarts();
+      if (isTimer) {
+        startTimerWhenLoopStarts();
+      }
       currentGameLoop = gameLoop2;
       otherLoop = gameLoop;
     }
@@ -976,7 +991,10 @@ document.addEventListener("DOMContentLoaded", function () {
     practice = false;
     score = 0;
     startRandomloop();
-    setTimeout(() => {
+    if (time) {
+      clearTimeout(time);
+    }
+    time = setTimeout(() => {
       clearEventListeners();
       switchGameLoop();
       startAsteroidSpawner(500); // Adjust the interval as needed
@@ -1020,7 +1038,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function onStage3Finish() {
     clearEventListeners();
     checkmarkDiv.style.display = "none";
-    startAsteroidSpawner();
+    if (!shortIntro) {
+      startAsteroidSpawner();
+    }
     stage4();
   }
 
@@ -1171,7 +1191,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const answer = event.target.dataset.answer;
     // console.log(`User's answer: ${answer}`);
     //1.5 second delay until questionnaire goes away
-    setTimeout(() => {
+    if (time1) {
+      clearTimeout(time1);
+    }
+    time1 = setTimeout(() => {
       hideQuestionnaire();
     }, 1000);
   }
@@ -1374,7 +1397,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       countdownElement.textContent = number;
-      setTimeout(function () {
+      if (time2) {
+        clearTimeout(time2);
+      }
+      time2 = setTimeout(function () {
         updateCountdown(number - 1);
       }, 1000);
     }

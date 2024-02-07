@@ -1,7 +1,7 @@
 // const { get } = require("mongoose");
 document.addEventListener("DOMContentLoaded", function () {
-  const setupForm = document.getElementById("setupForm");
   const path = window.location.pathname;
+  const setupForm = document.getElementById("setupForm");
   console.log(path);
 
   setupForm.addEventListener("submit", function (event) {
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // Make an HTTP POST request to your server to save the data
-    fetch("https://js-spaceship-lucy-conditions.fly.dev", {
+    fetch("/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
