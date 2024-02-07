@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Block Over</title>
+  </head>
+  <body>
+    <div class="blockOva-flex">
+      <h2 class="blockOver-header">The Block is now Over.</h2>
+      <p>
+        You now have the opportunity to take a break. Press the button below to
+        play again.
+      </p>
+      <button id="blockOva-btn">Press Here to Play Again</button>
+    </div>
+  </body>
+  <script>
+    var block = 1;
+    localStorage.setItem("block", block);
+    blockOvabutton = document.getElementById("blockOva-btn");
+    blockOvabutton.addEventListener("click", function (event) {
+      console.log(localStorage.getItem("root"));
+      event.preventDefault();
+      window.location.href = `${localStorage.getItem("root")}`;
+      block++;
+    });
+  </script>
+</html>
