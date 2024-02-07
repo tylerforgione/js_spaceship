@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // Make an HTTP POST request to your server to save the data
-    fetch("https://js-spaceship-lucy-conditions.fly.dev", {
+    fetch("/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

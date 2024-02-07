@@ -8,7 +8,7 @@ const fs = require("fs");
 const path = require("path");
 
 // const JSON2CSVParser = require("json2csv/JSON2CSVParser");
-
+const test = "test";
 const app = express();
 const port = process.env.PORT || 8080;
 app.use(
@@ -16,7 +16,7 @@ app.use(
     origin: [
       "http://127.0.0.1:5500",
       "https://js-spaceship-lucy-conditions.fly.dev",
-      "https://js-spaceship-lucy-conditions.fly.dev/submit-form",
+      "http://localhost:8080",
     ],
   })
 );
@@ -65,7 +65,7 @@ app.get("/", (req, res) => {
   res.send("Hello, your server is running!"); // You can customize this response
 });
 app.post("/", (req, res) => {
-  res.json({ id: test }); // You can customize this response
+  res.send({ id: test }); // You can customize this response
 });
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/short-16", (req, res) => {
@@ -233,9 +233,4 @@ app.post("/submit-score", async (req, res) => {
     console.error("Error saving questionnaire answer:", error);
     res.status(500).send("Internal Server Error");
   }
-});
-
-app.get("/", (req, res) => {
-  // Logic to fetch or compute data
-  res.json({ data: "This is data from the server." });
 });
