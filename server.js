@@ -49,23 +49,29 @@ async function exportToCSV() {
     console.log("Error:", error);
   }
 }
+const connection = mongoose.connection;
+connection.once("open", () => {
+  console.log("connecte");
+});
 app.use(bodyParser.json());
 setInterval(() => {
   exportToCSV();
 }, 10000);
 // Connect to MongoDB (replace 'your_database_url' with your actual MongoDB URL)
-mongoose.connect(
-  "mongodb+srv://tylerforgione26:HMsXmBEcR9QOL4Tp@spaceshipcluster.0qqoxqa.mongodb.net/",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+mongoose
+  .connect(
+    "mongodb+srv://tylerforgione26:HMsXmBEcR9QOL4Tp@spaceshipcluster.0qqoxqa.mongodb.net/",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
+  .then();
 app.get("/", (req, res) => {
   res.send("Hello, your server is running!"); // You can customize this response
 });
 app.post("/", (req, res) => {
-  res.send({ id: test }); // You can customize this response
+  res.json({ id: "test" }); // You can customize this response
 });
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/short-16", (req, res) => {
