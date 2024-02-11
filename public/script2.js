@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
   // 6 minute sessions x 5 blocks (full practice on 1st block)
-
   const path = window.location.pathname;
   const isTimer = path == "/short-16" || path == "/long-3";
   const shortIntro = path == "/short-16" || path == "/long-3";
   const thurtMins = path == "/long-1" || path == "/long-2";
+  const sixMins = path == "/short-1" || path == "/short-2-15";
   // Get the canvas and its context
   const canvas = this.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
@@ -406,30 +406,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
       display.textContent = `${minutes}:${seconds}`;
 
-      // if (!isTimer) {
-      //   if (--timer < 0 && sessionBlock < 5) {
-      //     pauseGame();
-      //     pause = true;
-      //     clearInterval(intervalId);
-      //     sendScoreToServer();
-      //   } else if (--timer < 0 && sessionBlock > 5) {
-      //     endGame();
-      //     sendScoreToServer();
-      //   }
-      // }
-      if (thurtMins) {
-        clearInterval(intervalId);
-        endGame();
-        sendScoreToServer();
-      }
       if (--timer < 0) {
-        clearInterval(intervalId);
-        endGame();
-      }
-      if (isTimer) {
-        if (--timer < 0) {
+        var done = localStorage.getItem("done");
+        console.log(done);
+        console.log(typeof done === "string");
+        if (sixMins && localStorage.getItem("block") < 5) {
+          console.log("1");
+          var block2 = localStorage.getItem("block");
+          localStorage.setItem("block", ++block2);
+          console.log(localStorage.getItem("block"));
+          window.location.href = "blockOver.html";
+          sendScoreToServer();
+        } else if (sixMins && localStorage.getItem("block") >= 5) {
+          console.log("2");
           clearInterval(intervalId);
-          endGame(); // Clear the interval when the timer reaches 0
+          endGame();
+          localStorage.clear();
+          sendScoreToServer();
+        } else if (thurtMins) {
+          console.log("3");
+          clearInterval(intervalId);
+          endGame();
+          localStorage.clear();
+          sendScoreToServer();
+        } else if (done == "false") {
+          console.log("4");
+          window.location.href = "blockOver.html";
+          sendScoreToServer();
+        } else if (done == "true") {
+          console.log("5");
+          clearInterval(intervalId);
+          endGame();
+          localStorage.clear();
           sendScoreToServer();
         }
       }
@@ -464,7 +472,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Call this function to start the timer when your loop or event begins
   function startTimerWhenLoopStarts() {
     const four = 6 - 1;
-    const thirty = 60 * 30 - 1;
+    const thirty = 30 - 1;
     const fifteen = 60 * 15 - 1;
     var display = document.querySelector("#timer");
     var initialTimerValue;
@@ -478,7 +486,11 @@ document.addEventListener("DOMContentLoaded", function () {
         display.style.display = "none";
         break;
       case "/short-16":
-        initialTimerValue = setTimer(fifteen);
+        if (localStorage.getItem("random") < 0.5) {
+          initialTimerValue = setTimer(four);
+        } else {
+          initialTimerValue = setTimer(thirty);
+        }
         break;
       case "/long-1":
         initialTimerValue = setTimer(thirty);
@@ -489,7 +501,11 @@ document.addEventListener("DOMContentLoaded", function () {
         display.style.display = "none";
         break;
       case "/long-3":
-        initialTimerValue = setTimer(fifteen);
+        if (localStorage.getItem("random") < 0.5) {
+          initialTimerValue = setTimer(thirty);
+        } else {
+          initialTimerValue = setTimer(four);
+        }
         break;
       default:
         initialTimerValue = setTimer(four);
@@ -1257,7 +1273,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function endGame() {
     end = true;
     hideQuestionnaire();
-    window.location.href = "blockOver.html";
     const gameOverScreen = document.createElement("div");
     gameOverScreen.innerHTML = `
       <div style="color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
