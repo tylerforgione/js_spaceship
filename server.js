@@ -14,23 +14,13 @@ const port = process.env.PORT || 8080;
 app.use(
   cors({
     origin: [
-      "http://127.0.0.1:5500",
+      "http://127.0.0.1:8080",
       "https://js-spaceship-lucy-conditions.fly.dev",
     ],
   })
 );
 async function exportToCSV() {
   try {
-    // const data = await SpacebarPressEvent.find().lean().exec(); // Ensure this returns the desired data
-    // const data2 = await Participant.find().lean().exec();
-    // const data3 = await Questionnaire.find().lean().exec();
-    // const csv = json2csv(data);
-    // fs.writeFileSync(`output.csv${subject}`, csv); // Use 'await' and 'fs.promises.writeFile()' for proper async handling
-    // const csv2 = json2csv(data2);
-    // fs.writeFileSync(`output2.csv${subject}`, csv2);
-    // const csv3 = json2csv(data3);
-    // fs.writeFileSync(`output3.csv${subject}`, csv3);
-    // console.log("Exported");
     const collections = await mongoose.connection.db
       .listCollections()
       .toArray();
@@ -55,7 +45,7 @@ connection.once("open", () => {
 app.use(bodyParser.json());
 setInterval(() => {
   exportToCSV();
-}, 10000);
+}, 360000);
 // Connect to MongoDB (replace 'your_database_url' with your actual MongoDB URL)
 mongoose
   .connect(
@@ -117,6 +107,8 @@ const participantSchema = new mongoose.Schema({
   age: String,
   gender: String,
   handedness: String,
+  date: String,
+  cond: String,
 });
 
 const Participant = mongoose.model("Participant", participantSchema);
@@ -147,17 +139,26 @@ app.post("/submit-form", (req, res) => {
 const SpacebarPressEvent = mongoose.model("SpacebarPressEvent", {
   id: String,
   timestamp: Number,
+  block: Number,
+  date: String,
+  cond: String,
 });
 
 // Route to receive and store spacebar press events
 app.post("/submit-spacebar-press", async (req, res) => {
-  const { id, timestamp } = req.body;
+  const { id, timestamp, block, date, cond } = req.body;
   time = req.body.event.timestamp;
   console.log(req.body.event.timestamp);
 
   try {
     // Create a new SpacebarPressEvent document and save it to the database
-    const spacebarPressEvent = new SpacebarPressEvent({ id, timestamp: time });
+    const spacebarPressEvent = new SpacebarPressEvent({
+      id,
+      timestamp: time,
+      block,
+      date,
+      cond,
+    });
     await spacebarPressEvent.save();
     console.log("Spacebar press event saved successfully");
     res.sendStatus(200);
@@ -176,6 +177,9 @@ const questionnaireSchema = new mongoose.Schema({
   id: String,
   answer: String,
   qTime: Number,
+  block: Number,
+  date: String,
+  cond: String,
 });
 
 // Create a model based on the schema
@@ -187,7 +191,7 @@ app.use(bodyParser.json());
 // Route to handle saving questionnaire answers
 app.post("/submit-answer", async (req, res) => {
   try {
-    const { id, answer, qTime } = req.body;
+    const { id, answer, qTime, block, date, cond } = req.body;
     console.log(id);
 
     // Create a new Questionnaire instance
@@ -195,6 +199,9 @@ app.post("/submit-answer", async (req, res) => {
       id,
       answer,
       qTime,
+      block,
+      date,
+      cond,
     });
 
     // Save the questionnaire data to MongoDB
@@ -210,6 +217,9 @@ app.post("/submit-answer", async (req, res) => {
 const scoreSchema = new mongoose.Schema({
   id: String,
   score: Number,
+  block: Number,
+  date: String,
+  cond: String,
 });
 
 // Create a model based on the schema
@@ -221,13 +231,16 @@ app.use(bodyParser.json());
 // Route to handle saving questionnaire answers
 app.post("/submit-score", async (req, res) => {
   try {
-    const { id, score } = req.body;
+    const { id, score, block, date, cond } = req.body;
     console.log(score);
 
     // Create a new Questionnaire instance
     const fscore = new finalScore({
       id,
       score,
+      block,
+      date,
+      cond,
     });
 
     // Save the questionnaire data to MongoDB
