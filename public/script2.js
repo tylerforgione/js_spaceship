@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, interval);
   }
 
-  // Call this function to start spawning asteroids every 2000 milliseconds (2 seconds)
+  // Call this function to start spawning asteroids
 
   //EXPLOSION CODE
   const explosionSpriteSheet = new Image();
@@ -386,27 +386,47 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  if (shortIntro && timeEnd > 360000) {
+    localStorage.setItem("block", 1);
+  } else if (shortIntro && timeEnd <= 360000) {
+    localStorage.setItem("block", 2);
+  }
+
   function showScore() {
     document.getElementById(
       "score-tracker"
     ).innerHTML = `<span>Score = ${score}</span>`;
   }
 
+  var quitpls;
+  var timeEnd;
   var sessionBlock = 1;
 
   function startTimer(timer, display) {
+    let timee = timer;
     let intervalId = setInterval(function () {
-      let minutes = parseInt(timer / 60, 10);
-      let seconds = parseInt(timer % 60, 10);
-      let milliseconds = parseInt((timer - Math.floor(timer)) * 1000, 10); // Extract milliseconds
+      let minutes = Math.floor(
+        (timee - (performance.now() - startTime)) / 60000
+      );
+      let seconds = Math.floor(
+        ((timee - (performance.now() - startTime)) / 1000) % 60
+      );
 
-      minutes = minutes < 10 ? "0" + minutes : minutes;
+      if (seconds == 30 || seconds == 0) {
+        seeQuestionnaire();
+        seeQ = true;
+        countdown(10 * 1000);
+      }
+
       seconds = seconds < 10 ? "0" + seconds : seconds;
-      milliseconds = milliseconds < 100 ? "0" + milliseconds : milliseconds; // Adjust for three-digit display
-
       display.textContent = `${minutes}:${seconds}`;
 
-      if (--timer < 0) {
+      if (minutes == 0 && seconds == 0) {
+        quitpls = true;
+      }
+
+      if (performance.now() >= timeEnd) {
+        sendScoreToServer();
         var done = localStorage.getItem("done");
         console.log(done);
         console.log(typeof done === "string");
@@ -416,29 +436,30 @@ document.addEventListener("DOMContentLoaded", function () {
           localStorage.setItem("block", ++block2);
           console.log(localStorage.getItem("block"));
           window.location.href = "blockOver.html";
-          sendScoreToServer();
         } else if (sixMins && localStorage.getItem("block") >= 5) {
           console.log("2");
           clearInterval(intervalId);
           endGame();
           localStorage.clear();
-          sendScoreToServer();
         } else if (thurtMins) {
           console.log("3");
           clearInterval(intervalId);
           endGame();
           localStorage.clear();
-          sendScoreToServer();
         } else if (done == "false") {
+          var block2 = localStorage.getItem("block");
+          if (block2 == 1) {
+            localStorage.setItem("block", ++block2);
+          } else if (block2 == 2) {
+            localStorage.setItem("block", --block2);
+          }
           console.log("4");
           window.location.href = "blockOver.html";
-          sendScoreToServer();
         } else if (done == "true") {
           console.log("5");
           clearInterval(intervalId);
           endGame();
           localStorage.clear();
-          sendScoreToServer();
         }
       }
     }, 1000); // Update every 100 milliseconds
@@ -446,13 +467,16 @@ document.addEventListener("DOMContentLoaded", function () {
     move();
   }
 
+  console.log(localStorage.getItem("date"));
+
   var i = 0;
   function move() {
     if (i == 0) {
+      var pbar = pBarRatio;
       i = 1;
       var elem = document.getElementById("myBar");
       var width = 1;
-      var id = setInterval(frame, 9000);
+      var id = setInterval(frame, pbar);
       function frame() {
         if (width >= 100) {
           clearInterval(id);
@@ -466,45 +490,60 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function setTimer(duration) {
-    return duration; // Simply return the initial duration
+    return duration * 1000; // Simply return the initial duration x 1000
   }
-
+  var pBarRatio;
+  var condForP =
+    "You will play 5 times with a break between each block of gameplay.";
   // Call this function to start the timer when your loop or event begins
   function startTimerWhenLoopStarts() {
-    const four = 6 - 1;
-    const thirty = 30 - 1;
+    const four = 60 * 6;
+    const thirty = 60 * 30;
     const fifteen = 60 * 15 - 1;
     var display = document.querySelector("#timer");
     var initialTimerValue;
     switch (path) {
       case "/short-1":
         initialTimerValue = setTimer(four);
+        timeEnd = four * 1000 - 1;
         display.style.display = "none";
+        console.log(condForP);
         break;
       case "/short-2-15":
         initialTimerValue = setTimer(four);
+        timeEnd = four * 1000 - 1;
         display.style.display = "none";
         break;
       case "/short-16":
         if (localStorage.getItem("random") < 0.5) {
           initialTimerValue = setTimer(four);
+          timeEnd = four * 1000 - 1;
+          pBarRatio = 3600;
         } else {
           initialTimerValue = setTimer(thirty);
+          timeEnd = thirty * 1000 - 1;
+          pBarRatio = 18000;
         }
         break;
       case "/long-1":
         initialTimerValue = setTimer(thirty);
+        timeEnd = thirty * 1000 - 1;
         display.style.display = "none";
         break;
       case "/long-2":
         initialTimerValue = setTimer(thirty);
+        timeEnd = thirty * 1000 - 1;
         display.style.display = "none";
         break;
       case "/long-3":
         if (localStorage.getItem("random") < 0.5) {
           initialTimerValue = setTimer(thirty);
+          timeEnd = thirty * 1000 - 1;
+          pBarRatio = 18000;
         } else {
           initialTimerValue = setTimer(four);
+          timeEnd = four * 1000 - 1;
+          pBarRatio = 3600;
         }
         break;
       default:
@@ -524,8 +563,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const stages = [
     {
       name: "Welcome to the Experiment!",
-      instructions:
-        "This is a practice session. You will be asked to practice the various controls for the game. When you complete a stage successfully, you will see a green checkmark. You may then press 'n' to continue to the next stage. You must complete all practice stages, otherwise you will have to restart! <strong>If you go to the next stage before seeing the green checkmark, you will be forced to reload the page.</strong> You will have the opportunity to gain a bonus after the experiment. Finally, the spaceship may start flickering. If you see this happen during the practice stage, just relaod the page and it will fix itself. Please press 'n' to continue",
+      instructions: `This is a practice session. You will be asked to practice the various controls for the game. When you complete a stage successfully, you will see a green checkmark. You may then press 'n' to continue to the next stage. You must complete all practice stages, otherwise you will have to restart! <strong>If you go to the next stage before seeing the green checkmark, you will be forced to reload the page.</strong> You will have the opportunity to gain a bonus after the experiment.${condForP} Finally, the spaceship may start flickering. If you see this happen during the practice stage, just relaod the page and it will fix itself. Please press 'n' to continue`,
     },
     {
       name: "Rotate Right",
@@ -643,7 +681,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function shortInstructions() {
     document.getElementById("instructions").innerHTML = `
     <h1>Welcome back to the experiment!</h1>
-    <p>Welcome back! In this session, we will go over the game's controls and let you play around a bit before the session starts. Press the left and right arrow keys to turn left and right, press the up arrow key to accelerate, and press spacebar to shoot missiles at asteroids! Don't forget that there will be questionnaires that you must answer using your mouse cursor. If you miss too many, you will not get a bonus at the end of the experiment. Good Luck! Press 'n' to practice</p>
+    <p>Welcome back! In this session, we will go over the game's controls and let you play around a bit before the session starts. Press the left and right arrow keys to turn left and right, press the up arrow key to accelerate, and press spacebar to shoot missiles at asteroids! Don't forget that there will be questionnaires that you must answer using your mouse cursor. If you miss too many, you will not get a bonus at the end of the experiment. You will be playing twice, once for 30 minutes and again for 6 minutes. Good Luck! Press 'n' to practice</p>
   `;
   }
 
@@ -992,23 +1030,13 @@ document.addEventListener("DOMContentLoaded", function () {
     practice = false;
     score = 0;
     startRandomloop();
-    setTimeout(() => {
-      clearEventListeners();
-      switchGameLoop();
-      startAsteroidSpawner(500); // Adjust the interval as needed
-      requestAnimationFrame(currentGameLoop);
-    }, 5000);
-    setInterval(() => {
-      if (end === true) {
-        return;
-      }
-      if (pause) {
-        return;
-      }
-      seeQuestionnaire();
-      seeQ = true;
-      countdown(10 * 1000);
-    }, 30000);
+    clearEventListeners();
+    if (end === true) {
+      return;
+    }
+    if (pause) {
+      return;
+    }
   }
 
   function onStage0Finish() {
@@ -1084,7 +1112,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         timestamp = performance.now() - startTime;
       }
-      spacebarPressEvents.push({ timestamp }); // Store the event with timestamp
+      // Store the event with timestamp
       // Send this spacebar press event to the server
       // console.log(timestamp);
       sendSpacebarPressToServer({ timestamp });
@@ -1096,6 +1124,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const id = localStorage.getItem("id");
     //localStorage.removeItem("id");
     // console.log(id);
+    date = localStorage.getItem("date");
+    console.log(date);
+    const block = localStorage.getItem("block");
+    const cond = localStorage.getItem("cond");
     fetch(
       "https://js-spaceship-lucy-conditions.fly.dev/submit-spacebar-press",
       {
@@ -1103,7 +1135,7 @@ document.addEventListener("DOMContentLoaded", function () {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ event, id }),
+        body: JSON.stringify({ event, id, block, date, cond }),
       }
     )
       .then((response) => {
@@ -1215,6 +1247,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function sendQuestionnaireAnswer(answer) {
     const id = localStorage.getItem("id");
     // console.log(id);
+    date = localStorage.getItem("date");
+    const block = localStorage.getItem("block");
+    const cond = localStorage.getItem("cond");
     if (practice) {
       qTime = -1;
     } else {
@@ -1225,7 +1260,7 @@ document.addEventListener("DOMContentLoaded", function () {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id, answer, qTime }),
+      body: JSON.stringify({ id, answer, qTime, block, date, cond }),
     })
       .then((response) => {
         if (response.ok) {
@@ -1340,16 +1375,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000); // Update every 100 milliseconds
   }
 
+  var date;
+
   function sendScoreToServer() {
     const id = localStorage.getItem("id");
     //localStorage.removeItem("id");
     // console.log(id);
+    date = localStorage.getItem("date");
+    const block = localStorage.getItem("block");
+    const cond = localStorage.getItem("cond");
     fetch("https://js-spaceship-lucy-conditions.fly.dev/submit-score", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id, score }),
+      body: JSON.stringify({ id, score, block, date, cond }),
     })
       .then((response) => {
         if (response.status === 200) {
